@@ -1,17 +1,26 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <el-container class="home-container">
+    <!--头部  -->
+    <el-header>Header</el-header>
+    <!-- 页面主体区  嵌套容器  包裹 Aside与Main -->
+    <el-container>
+      <!-- 左侧 -->
+      <el-aside width="200px">Aside</el-aside>
+      <!-- 主体 -->
+      <el-main>Main</el-main>
+    </el-container>
+  </el-container>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import HelloWorld from "./components/HelloWorld.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
-  }
-}
+    HelloWorld,
+  },
+};
 </script>
 
 <style>

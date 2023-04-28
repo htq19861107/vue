@@ -1,84 +1,58 @@
 <template>
-  <el-container class="home-container">
-    <!--头部  -->
-    <el-header>
-      <div>
-        <img src="../src/assets/logo.png" alt="" />
-        <span>量子計算平台</span>
-      </div>
-      <!-- 退出按钮 -->
-      <el-button type="info" @click="logout">退出</el-button>
-    </el-header>
-    <!-- 页面主体区  嵌套容器  包裹 Aside与Main -->
-    <el-container>
-      <!-- 左侧 -->
-      <el-aside width="200px">Aside</el-aside>
-      <!-- 主体 -->
-      <el-main>Main</el-main>
-    </el-container> 
-    <el-footer>footer</el-footer>
-  </el-container>
+  <div>
+    <app-header></app-header>
+    <app-navbar></app-navbar>
+    <app-main></app-main>
+    <app-footer></app-footer>
+  </div>
 </template>
-
 <script>
+import AppHeader from "./components/AppHeader";
+import AppNavbar from "./components/AppNavbar";
+import AppMain from "./components/AppMain";
+import AppFooter from "./components/AppFooter";
+// 导入子组件，缩写格式 AppHeader: AppHeader
 export default {
-  name: "HomePage",
-  methods: {
-    // 退出操作
-    logout() {
-      // 清空token
-      window.sessionStorage.clear();
-      //  将登录页面转入到登录界面
-      this.$router.push("/login");
-    },
-  },
+  components: { AppHeader, AppNavbar, AppMain, AppFooter }, // 有s
 };
 </script>
-
-<style scoped lang="less">
-// 标签的名字就是类的名字
-.home-container {
-  height: 100%;
+<style scoped>
+/* 头部样式 */
+.header {
+  position: absolute;
+  line-height: 50px;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  background-color: #2d3a4b;
 }
-.el-header {
-  background-color: #373d41;
-  display: flex;
-  justify-content: space-between;
-  padding-left: 0px;
-  //  居中
-  align-items: center;
-  //  文本颜色
-  color: #fff;
-  // 文字大小
-  font-size: 20px;
-  height: 100px;
-  // 给header中嵌套的div进行样式改造
-  // 子代选择器
-  > div {
-    display: flex;
-    //   纵向居中
-    align-items: center;
-
-    //   在给div中的span改造样式
-    > span {
-      margin-left: 20px;
-    }
-  }
+/* 左侧样式 */
+.navbar {
+  position: absolute;
+  width: 200px;
+  top: 50px; /* 距离上面50像素 */
+  left: 0px;
+  bottom: 0px;
+  overflow-y: auto; /* 当内容过多时y轴出现滚动条 */
+  background-color: #545c64;
 }
-
-.el-aside {
-  background-color: #333744;
-  max-width: 200px;
-  min-height: 900px;
+/* 主区域 */
+.main {
+  position: absolute;
+  top: 50px;
+  left: 200px;
+  bottom: 0px;
+  right: 0px; /* 距离右边0像素 */
+  padding: 10px;
+  overflow-y: auto; /* 当内容过多时y轴出现滚动条 */
+  /* background-color: rgb(10, 212, 57); */
 }
-
-.el-main {
-  background-color: #eaedf1;
-  height: 900px;
-}
-
-.el-footer{
-  background-color: #42b983;
-  height: 100px;
+.footer {
+  position: absolute;
+  line-height: 50px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  background-color: #176cdb;
 }
 </style>
