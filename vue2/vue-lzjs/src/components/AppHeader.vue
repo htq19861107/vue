@@ -115,23 +115,26 @@ export default {
   position: absolute;
   margin: 0px 0px 0px 0px;
   height: 60px;
+  top:0px;
   left: 0px;
   right: 0px;
+  bottom: 0px;
   background-color: #c2e10f;
   margin: 0;
   padding: 0;
 
   .nav {
-    margin-top: 1px;
-    height: 40px;
+    margin-top: 0px 0px 0px 0px;
+    height: 60px;
     width: 100px;
   }
   .nav-title-list {
     width: 1500px;
     margin: 0 auto;
+    padding-inline-start:0px;
     li {
       float: left;
-      margin-right: 50px;
+      margin-right: 0px;
       list-style: none;
     }
   }
@@ -143,7 +146,7 @@ export default {
     font-size:15px;
     color:#ac1313;
     width: 120px;
-    height: 50px;
+    height: 60px;
     line-height: 50px;
     text-align: center;
     border-top: 1px #a0a290 solid;
@@ -165,7 +168,7 @@ export default {
     background-color: #EB131E;
     color:#FFFFFF;
     width:120px;
-    height:50px;
+    height:60px;
     text-align: center;
     border-top: 1px #909090 solid;
   }
