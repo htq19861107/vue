@@ -33,9 +33,10 @@ export default {
     return {
       
       menus: [
-        { name: "首页", url: "#" },
+        { show:false,name: "首页", url: "#" },
 
         {
+          show:false,
           name: "量子技术研究院",
           url: "#",
           subMenus: [
@@ -45,6 +46,7 @@ export default {
           ],
         },
         {
+          show:false,
           name: "公告动态",
           url: "#",
           subMenus: [
@@ -55,6 +57,7 @@ export default {
           ],
         },
         {
+          show:false,
           name: "量子云",
           url: "#",
           subMenus: [
@@ -64,7 +67,7 @@ export default {
           ],
         },
         {
-          name: "产品",
+          show:false,name: "产品",
           url: "#",
           subMenus: [
             { name: "产品1", url: "#" },
@@ -75,7 +78,7 @@ export default {
           ],
         },
         {
-          name: "学习",
+          show:false,name: "学习",
           url: "#",
           subMenus: [
             { name: "学习1", url: "#" },
@@ -85,7 +88,7 @@ export default {
           ],
         },
         {
-          name: "开发",
+          show:false,name: "开发",
           url: "#",
           subMenus: [
             { name: "开发1", url: "#" },
@@ -95,7 +98,7 @@ export default {
           ],
         },
         {
-          name: "大赛",
+          show:false,name: "大赛",
           url: "#",
           subMenus: [
             { name: "大赛1", url: "#" },
@@ -104,7 +107,7 @@ export default {
             { name: "大赛4", url: "#" },
           ],
         },
-        { name: "网上预约", url: "#" },
+        { show:false,name: "网上预约", url: "#" },
       ],
     };
   },
@@ -112,7 +115,7 @@ export default {
 </script>
 <style lang="less" scoped>
 .header {
-  position: absolute;
+
   margin: 0px 0px 0px 0px;
   height: 60px;
   top:0px;
@@ -129,6 +132,7 @@ export default {
     width: 100px;
   }
   .nav-title-list {
+    position: relative;
     width: 1500px;
     margin: 0 auto;
     padding-inline-start:0px;
@@ -152,11 +156,13 @@ export default {
     border-top: 1px #a0a290 solid;
   }
   .nav-title-submenu{
+    position: absolute;
     display: block;
-    width:110px;
+    width:120px;
     text-align: center;
     z-index: 1000;
-    margin-top: 100px;
+    margin-left: 0px;
+    margin-top: 50px;
   }
   .menus>.menus-a:hover{
     background-color: #131504;
@@ -164,11 +170,11 @@ export default {
   }
   .subMenu a{
     float:left;
-    font-size:20px;
+    font-size:10px;
     background-color: #EB131E;
     color:#FFFFFF;
     width:120px;
-    height:60px;
+    height:20px;
     text-align: center;
     border-top: 1px #909090 solid;
   }
