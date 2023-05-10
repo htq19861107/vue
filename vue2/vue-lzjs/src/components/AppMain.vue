@@ -1,5 +1,9 @@
 <template>
-  <div class="main">主区域</div>
+  <div class="main">
+    <router-link to="/home">home</router-link>
+    <router-link to="/home1">home1</router-link>
+    <router-view></router-view>
+  </div>
 </template>
 
 <script>
