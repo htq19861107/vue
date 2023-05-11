@@ -24,6 +24,7 @@
         </li>
       </ul>
     </div>
+    <span @click="signOut" style="cursor: pointer">退出</span>
   </div>
 </template>
 <script>
@@ -31,12 +32,11 @@ export default {
   name: "AppHeader",
   data() {
     return {
-      
       menus: [
-        { show:false,name: "首页", url: "#" },
+        { show: false, name: "首页", url: "#" },
 
         {
-          show:false,
+          show: false,
           name: "量子技术研究院",
           url: "#",
           subMenus: [
@@ -46,7 +46,7 @@ export default {
           ],
         },
         {
-          show:false,
+          show: false,
           name: "公告动态",
           url: "#",
           subMenus: [
@@ -57,7 +57,7 @@ export default {
           ],
         },
         {
-          show:false,
+          show: false,
           name: "量子云",
           url: "#",
           subMenus: [
@@ -67,7 +67,8 @@ export default {
           ],
         },
         {
-          show:false,name: "产品",
+          show: false,
+          name: "产品",
           url: "#",
           subMenus: [
             { name: "产品1", url: "#" },
@@ -78,7 +79,8 @@ export default {
           ],
         },
         {
-          show:false,name: "学习",
+          show: false,
+          name: "学习",
           url: "#",
           subMenus: [
             { name: "学习1", url: "#" },
@@ -88,7 +90,8 @@ export default {
           ],
         },
         {
-          show:false,name: "开发",
+          show: false,
+          name: "开发",
           url: "#",
           subMenus: [
             { name: "开发1", url: "#" },
@@ -98,7 +101,8 @@ export default {
           ],
         },
         {
-          show:false,name: "大赛",
+          show: false,
+          name: "大赛",
           url: "#",
           subMenus: [
             { name: "大赛1", url: "#" },
@@ -107,7 +111,7 @@ export default {
             { name: "大赛4", url: "#" },
           ],
         },
-        { show:false,name: "网上预约", url: "#" },
+        { show: false, name: "网上预约", url: "#" },
       ],
     };
   },
@@ -115,10 +119,9 @@ export default {
 </script>
 <style lang="less" scoped>
 .header {
-
   margin: 0px 0px 0px 0px;
   height: 60px;
-  top:0px;
+  top: 0px;
   left: 0px;
   right: 0px;
   bottom: 0px;
@@ -130,12 +133,16 @@ export default {
     margin-top: 0px 0px 0px 0px;
     height: 60px;
     width: 100px;
+    .button1 {
+      float: left;
+    }
   }
   .nav-title-list {
+    flex: 1;
     position: relative;
-    width: 1500px;
+    width: 1200px;
     margin: 0 auto;
-    padding-inline-start:0px;
+    padding-inline-start: 0px;
     li {
       float: left;
       margin-right: 0px;
@@ -145,40 +152,40 @@ export default {
   .menus {
     float: left;
   }
-  .menus .menus-a{
+  .menus .menus-a {
     float: left;
-    font-size:15px;
-    color:#ac1313;
+    font-size: 15px;
+    color: #ac1313;
     width: 120px;
     height: 60px;
     line-height: 50px;
     text-align: center;
     border-top: 1px #a0a290 solid;
   }
-  .nav-title-submenu{
+  .nav-title-submenu {
     position: absolute;
     display: block;
-    width:120px;
+    width: 120px;
     text-align: center;
     z-index: 1000;
     margin-left: 0px;
     margin-top: 50px;
   }
-  .menus>.menus-a:hover{
+  .menus > .menus-a:hover {
     background-color: #131504;
     color: #0f32e1;
   }
-  .subMenu a{
-    float:left;
-    font-size:10px;
-    background-color: #EB131E;
-    color:#FFFFFF;
-    width:120px;
-    height:20px;
+  .subMenu a {
+    float: left;
+    font-size: 10px;
+    background-color: #eb131e;
+    color: #ffffff;
+    width: 120px;
+    height: 20px;
     text-align: center;
     border-top: 1px #909090 solid;
   }
-  .subMenu a:hover{
+  .subMenu a:hover {
     background-color: #ffaa00;
   }
 }
