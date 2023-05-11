@@ -18,13 +18,14 @@
               :key="index"
               class="subMenu"
             >
-              <a :href="nav.url"> {{ subMenu.name }}</a>
+              <a :href="nav.url" @click="toUrl(nav, subMenu)">
+                {{ subMenu.name }}</a
+              >
             </li>
           </ul>
         </li>
       </ul>
     </div>
-    <span @click="signOut" style="cursor: pointer">退出</span>
   </div>
 </template>
 <script>
@@ -34,13 +35,12 @@ export default {
     return {
       menus: [
         { show: false, name: "首页", url: "#" },
-
         {
           show: false,
           name: "量子技术研究院",
           url: "#",
           subMenus: [
-            { name: "量子技术研究院文化", url: "#" },
+            { name: "量子技术研究院文化", url: "home1" },
             { name: "量子技术研究院机构", url: "#" },
             { name: "量子技术研究院历史", url: "#" },
           ],
@@ -115,6 +115,25 @@ export default {
       ],
     };
   },
+  methods: {
+    toUrl(nav, submenu) {
+      nav.show = false;
+      console.log("toUrl");
+      this.$router.push({ name: submenu.url });
+      this.hideAllMenu();
+    },
+    hideAllMenu() {
+      this.menus.forEach((item, index) => {
+        console.log(index);
+        index.show = false;
+        console.log(item);
+        this.$set(this.menus[index], 'show', false);
+      });
+    },
+  },
+  mounted(){
+
+  }
 };
 </script>
 <style lang="less" scoped>
@@ -133,9 +152,6 @@ export default {
     margin-top: 0px 0px 0px 0px;
     height: 60px;
     width: 100px;
-    .button1 {
-      float: left;
-    }
   }
   .nav-title-list {
     flex: 1;
