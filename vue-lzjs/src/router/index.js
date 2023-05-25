@@ -6,7 +6,7 @@ import lzjsnews from '../pages/LzjsNews'
 const router = createRouter({
     routes:[
         {
-            path:'/lzjshome',
+            path:'/',
             component:lzjshome,
         },
         {
@@ -20,6 +20,10 @@ const router = createRouter({
         {
             path:'/lzjsnews',
             component:lzjsnews,
+        },
+        {
+            path:'/lzjshome',
+            component:lzjshome,
         },
     ],
     history:createWebHashHistory(),

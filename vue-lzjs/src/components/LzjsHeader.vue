@@ -54,9 +54,9 @@ export default {
   setup() {
     const router = useRouter();
     const productlist = [
-      { name: "菜单1", path: "./lzjshome" },
-      { name: "菜单2", path: "./lzjshome" },
-      { name: "菜单3", path: "./lzjslogin" },
+      { name: "菜单1", path: "./lzjscompute" },
+      { name: "菜单2", path: "./lzjscompute" },
+      { name: "菜单3", path: "./lzjscompute" },
     ];
     const toHome = () => {
       router.push("./lzjshome");
