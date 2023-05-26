@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="container">
     <!-- 导航栏 -->
     <div class="nav">
       <img src="../assets/logo.png" />
@@ -80,7 +80,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.nav {
+.container{
+  position:absolute;
+  left: 0px;
+  top: 0px;
+
+  .nav {
   position: reactive;
   display: flex;
   width: 100%;
@@ -169,4 +174,6 @@ export default {
     top: 10px;
   }
 }
+}
+
 </style>

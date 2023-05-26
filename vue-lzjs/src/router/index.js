@@ -3,6 +3,7 @@ import lzjshome from '../pages/LzjsHome'
 import lzjscompute from '../pages/LzjsCompute'
 import lzjslogin from '../pages/LzjsLogin'
 import lzjsnews from '../pages/LzjsNews'
+import dragtest from '../pages/DragTest'
 const router = createRouter({
     routes:[
         {
@@ -24,6 +25,10 @@ const router = createRouter({
         {
             path:'/lzjshome',
             component:lzjshome,
+        },
+        {
+            path:'/dragtest',
+            component:dragtest,
         },
     ],
     history:createWebHashHistory(),

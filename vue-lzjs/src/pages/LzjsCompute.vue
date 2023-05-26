@@ -1,6 +1,6 @@
 <template>
   <lzjsheader />
-  <div class="app-container">
+  <div class="container">
     <!-- <img src="../assets/gate/H.png" alt="" /> -->
     <input class="prjName" placeholder="Untitled Project" />
     <button class="btnModify" v-show="rename" @click="clickPrjName">
@@ -10,7 +10,7 @@
     <button class="btnReset" v-show="!rename" @click="clickPrjName">
       清空
     </button>
-    <el-select v-model="curServe" placeholder="请选择">
+    <el-select class="selServe" v-model="curServe" placeholder="请选择">
       <el-option
         v-for="item in servelist"
         :key="item.value"
@@ -21,7 +21,8 @@
     </el-select>
     <button class="btnRun" @click="clickRun">运行</button>
     <button class="btnSave" @click="clickSave">保存</button>
-    <button class="btnSetting" @click="clickSetting">设置</button>
+    
+    <button class="btnSetting" type="primary"  @click="clickSetting">设置</button>
     <ul>
       <li v-for="(item, index) in imglist" :key="index">
         <el-tooltip placement="top">
@@ -36,14 +37,27 @@
         <p>{{ item.name }}</p>
       </li>
     </ul>
-    <div class="densityChart" id="densityChart" :style="{ width: '300px', height: '300px' }"></div>
+    <img class="test1" src="../assets/svg/Line.svg" />
+    <img class="test2" src="../assets/svg/Line.svg" />
+    <img class="test3" src="../assets/svg/Line.svg" />
+    <img class="test4" src="../assets/svg/Line.svg" />
+    <img class="test5" src="../assets/svg/Line.svg" />
+    <img class="test6" src="../assets/svg/Line.svg" />
+    <div
+      class="densityChart"
+      id="densityChart"
+      :style="{ width: '300px', height: '300px' }"
+    ></div>
   </div>
 </template>
 
 <script>
 import lzjsheader from "../components/LzjsHeader";
-import { ref ,reactive,onMounted} from "vue";
-import * as echarts from 'echarts'
+import { ref, reactive, onMounted } from "vue";
+import * as echarts from "echarts";
+
+// 如果是vue3非setup情况，还需要注册
+
 export default {
   components: {
     lzjsheader,
@@ -93,47 +107,55 @@ export default {
     const clickSetting = () => {};
     /*******/
     const state = reactive({
-        option: {
-          grid: {
-            top: '4%',
-            left: '2%',
-            right: '4%',
-            bottom: '0%',
-            containLabel: true,
-          },
-          xAxis: [
-            {
-              type: 'category',
-              data: ["芳草地国际","实验小学","白家庄小学","外国语小学","师范学校附属","望京东园"],
-              axisTick: {
-                alignWithLabel: true,
-              },
-            },
-          ],
-          yAxis: [
-            {
-              type: 'value',
-            },
-          ],
-          series: [
-            {
-              name: '学校',
-              type: 'bar',
-              barWidth: '40%',
-              data: [260,680,360,460,150,320],
-            },
-          ],
+      option: {
+        grid: {
+          top: "4%",
+          left: "2%",
+          right: "4%",
+          bottom: "0%",
+          containLabel: true,
         },
-      });
-      const initeCharts = () => {
-        let densityChart = echarts.init(document.getElementById('densityChart'))
-        // 绘制图表
-        densityChart.setOption(state.option)
-      };
+        xAxis: [
+          {
+            type: "category",
+            data: [
+              "芳草地国际",
+              "实验小学",
+              "白家庄小学",
+              "外国语小学",
+              "师范学校附属",
+              "望京东园",
+            ],
+            axisTick: {
+              alignWithLabel: true,
+            },
+            axisLabel: { interval: 0, rotate: 30 },
+          },
+        ],
+        yAxis: [
+          {
+            type: "value",
+          },
+        ],
+        series: [
+          {
+            name: "学校",
+            type: "bar",
+            barWidth: "40%",
+            data: [260, 680, 360, 460, 150, 320],
+          },
+        ],
+      },
+    });
+    const initeCharts = () => {
+      let densityChart = echarts.init(document.getElementById("densityChart"));
+      // 绘制图表
+      densityChart.setOption(state.option);
+    };
 
-      onMounted(() => {
-        initeCharts()
-      });
+    onMounted(() => {
+      initeCharts();
+    });
 
     /******/
     return {
@@ -146,31 +168,49 @@ export default {
       clickRun,
       clickSave,
       clickSetting,
-      initeCharts
+      initeCharts,
     };
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.app-container {
+.container {
+  position: relative;
   .prjName {
-    left: 60px;
-    top: 60px;
+    position: relative;
+    display:flex;
+  }
+  .btnModify{
+    position: relative;
+    display:flex;
+  }
+  .btnOK{
+    position: relative;
+    display:flex;
+  }
+  .btnReset{
+    position: relative;
+    display:flex;
+  }
+  .selServe{
+    position: relative;
+    display:flex;
   }
   ul {
     position: relative;
     list-style-type: none;
     display: block;
     li {
+      position: relative;
       display: inline-block;
       padding-left: 10px;
     }
   }
-  .densityChart{
+  .densityChart {
     position: relative;
-    left:600px;
-    top:60px;
+    left: 600px;
+    top: 60px;
   }
 }
 </style>
