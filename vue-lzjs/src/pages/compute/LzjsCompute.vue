@@ -32,7 +32,7 @@
 
 <script>
 import lzjsheader from "../../components/LzjsHeader";
-import computeTitle from './components/ComputeTitle'
+import computeTitle from "./components/ComputeTitle";
 import { reactive, onMounted } from "vue";
 import * as echarts from "echarts";
 
@@ -66,8 +66,6 @@ export default {
         tooltip: "Z",
       },
     ];
-
-    /*******/
     const state = reactive({
       option: {
         grid: {
@@ -132,7 +130,7 @@ export default {
   position: relative;
   left: 0px;
   top: 300px;
-  width:100%;
+  width: 100%;
   ul {
     position: relative;
     left: 200px;
