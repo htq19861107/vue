@@ -1,34 +1,7 @@
 <template>
   <lzjsheader />
-  <div class="container">
-
-    <!-- <img src="../assets/gate/H.png" alt="" /> -->
-    <div class="nav">
-      <input class="prjName" placeholder="Untitled Project" />
-      <button class="btnModify" v-show="rename" @click="clickPrjName">
-        修改
-      </button>
-      <button class="btnOK" v-show="!rename" @click="clickPrjName">确定</button>
-      <button class="btnReset" v-show="!rename" @click="clickPrjName">
-        清空
-      </button>
-      <el-select class="selServe" v-model="curServe" placeholder="请选择">
-        <el-option
-          v-for="item in servelist"
-          :key="item.value"
-          :label="item.label"
-          :curServe="item.value"
-        >
-        </el-option>
-      </el-select>
-      <button class="btnRun" @click="clickRun">运行</button>
-      <button class="btnSave" @click="clickSave">保存</button>
-
-      <button class="btnSetting" type="primary" @click="clickSetting">
-        设置
-      </button>
-    </div>
-
+  <computeTitle />
+  <div class="content">
     <ul>
       <li v-for="(item, index) in imglist" :key="index">
         <el-tooltip placement="top">
@@ -43,12 +16,12 @@
         <p>{{ item.name }}</p>
       </li>
     </ul>
-    <img class="test1" src="../assets/svg/Line.svg" />
-    <img class="test2" src="../assets/svg/Line.svg" />
-    <img class="test3" src="../assets/svg/Line.svg" />
-    <img class="test4" src="../assets/svg/Line.svg" />
-    <img class="test5" src="../assets/svg/Line.svg" />
-    <img class="test6" src="../assets/svg/Line.svg" />
+    <img class="test1" src="../../assets/svg/Line.svg" />
+    <img class="test2" src="../../assets/svg/Line.svg" />
+    <img class="test3" src="../../assets/svg/Line.svg" />
+    <img class="test4" src="../../assets/svg/Line.svg" />
+    <img class="test5" src="../../assets/svg/Line.svg" />
+    <img class="test6" src="../../assets/svg/Line.svg" />
     <div
       class="densityChart"
       id="densityChart"
@@ -58,8 +31,9 @@
 </template>
 
 <script>
-import lzjsheader from "../components/LzjsHeader";
-import { ref, reactive, onMounted } from "vue";
+import lzjsheader from "../../components/LzjsHeader";
+import computeTitle from './components/ComputeTitle'
+import { reactive, onMounted } from "vue";
 import * as echarts from "echarts";
 
 // 如果是vue3非setup情况，还需要注册
@@ -67,50 +41,32 @@ import * as echarts from "echarts";
 export default {
   components: {
     lzjsheader,
+    computeTitle,
   },
   setup() {
-    let rename = ref(true);
-    let curServe = ref("");
     const imglist = [
       {
         name: "H",
-        url: require("../assets/gate/H.png"),
+        url: require("../../assets/gate/H.png"),
         tooltip: "H",
       },
       {
         name: "X",
-        url: require("../assets/gate/X.png"),
+        url: require("../../assets/gate/X.png"),
         tooltip: "X",
       },
       {
         name: "Y",
-        url: require("../assets/gate/Y.png"),
+        url: require("../../assets/gate/Y.png"),
         tooltip: "Y",
       },
       {
         name: "Z",
-        url: require("../assets/gate/Z.png"),
+        url: require("../../assets/gate/Z.png"),
         tooltip: "Z",
       },
     ];
-    const servelist = [
-      {
-        value: 1,
-        label: "1号服务器",
-        state: "1",
-      },
-      {
-        value: 2,
-        label: "2号服务器",
-        state: "1",
-      },
-    ];
-    const clickPrjName = () => {
-      rename.value = !rename.value;
-    };
-    const clickRun = () => {};
-    const clickSave = () => {};
-    const clickSetting = () => {};
+
     /*******/
     const state = reactive({
       option: {
@@ -162,18 +118,9 @@ export default {
     onMounted(() => {
       initeCharts();
     });
-
-    /******/
     return {
-      rename,
-      curServe,
       imglist,
-      servelist,
       state,
-      clickPrjName,
-      clickRun,
-      clickSave,
-      clickSetting,
       initeCharts,
     };
   },
@@ -181,22 +128,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.container {
-  position: absolute;
+.content {
+  position: relative;
   left: 0px;
-  top: 0px;
+  top: 300px;
   width:100%;
-  .nav {
-    left: 20px;
-    top: 90px;
-    position: relative;
-    display: flex;
-    z-index:0;
-  }
   ul {
     position: relative;
-    left: 20px;
-    top: 160px;
+    left: 200px;
+    top: 360px;
     list-style-type: none;
     display: block;
     li {
@@ -208,7 +148,7 @@ export default {
   .densityChart {
     position: relative;
     left: 600px;
-    top: 60px;
+    top: 260px;
   }
 }
 </style>
