@@ -42,7 +42,7 @@
         <span class="nav-item-title">公司简介</span>
       </div>
       <div class="nav-item"><span class="nav-item-title">新闻资讯</span></div>
-      <el-button class="btn-login" @click="toLogin" type="primary" size="large">login</el-button
+      <button class="btn-login" @click="toLogin" type="primary" size="large">login</button
       >
     </div>
   </div>
@@ -84,9 +84,10 @@ export default {
   position:absolute;
   left: 0px;
   top: 0px;
-
+  z-index:999;
+  background-color: #ccc;
   .nav {
-  position: reactive;
+  position: relative;
   display: flex;
   width: 100%;
   height: 60px;
@@ -103,29 +104,13 @@ export default {
     margin: 0 20px;
     cursor: pointer;
     transition: all 0.3s linear;
-
     .nav-item-title {
       position: relative;
       display: inline-block;
       height: inherit;
       width: inherit;
-      &::before {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        height: 2px;
-        width: 100%;
-        background-color: #1678e9;
-        transform: scale(0);
-        transition: all 0.4s linear;
-      }
-
       &:hover {
-        color: #1678e9;
-        &::before {
-          transform: scale(1);
-        }
+        color: #1678e9; 
       }
     }
     &:hover .dropdown-content {
@@ -146,9 +131,8 @@ export default {
     .dropdown-menu {
       padding: 10px 8px 15px;
       color: white;
-      background-color: rgba($color: #ccc, $alpha: 0.5);
+      background-color: rgba($color: #ccc, $alpha: 1);
       border-radius: 4px;
-
       .menuItem {
         width: 100%;
         height: 42px;
@@ -160,19 +144,21 @@ export default {
         cursor: pointer;
         transition: all 0.3s ease-in-out;
         border-radius: 4px;
-
         &:hover {
           color: #0b2be0;
+          z-index:999
         }
       }
     }
-  }
-  .btn-login {
+    .btn-login {
     position: relative;
-    float: right;
-    left: 40px;
-    top: 10px;
+    //float: display;
+    display: flex;
+    left: 20px;
+    top: 40px;
   }
+  }
+
 }
 }
 

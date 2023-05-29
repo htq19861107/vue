@@ -1,28 +1,34 @@
 <template>
   <lzjsheader />
   <div class="container">
+
     <!-- <img src="../assets/gate/H.png" alt="" /> -->
-    <input class="prjName" placeholder="Untitled Project" />
-    <button class="btnModify" v-show="rename" @click="clickPrjName">
-      修改
-    </button>
-    <button class="btnOK" v-show="!rename" @click="clickPrjName">确定</button>
-    <button class="btnReset" v-show="!rename" @click="clickPrjName">
-      清空
-    </button>
-    <el-select class="selServe" v-model="curServe" placeholder="请选择">
-      <el-option
-        v-for="item in servelist"
-        :key="item.value"
-        :label="item.label"
-        :curServe="item.value"
-      >
-      </el-option>
-    </el-select>
-    <button class="btnRun" @click="clickRun">运行</button>
-    <button class="btnSave" @click="clickSave">保存</button>
-    
-    <button class="btnSetting" type="primary"  @click="clickSetting">设置</button>
+    <div class="nav">
+      <input class="prjName" placeholder="Untitled Project" />
+      <button class="btnModify" v-show="rename" @click="clickPrjName">
+        修改
+      </button>
+      <button class="btnOK" v-show="!rename" @click="clickPrjName">确定</button>
+      <button class="btnReset" v-show="!rename" @click="clickPrjName">
+        清空
+      </button>
+      <el-select class="selServe" v-model="curServe" placeholder="请选择">
+        <el-option
+          v-for="item in servelist"
+          :key="item.value"
+          :label="item.label"
+          :curServe="item.value"
+        >
+        </el-option>
+      </el-select>
+      <button class="btnRun" @click="clickRun">运行</button>
+      <button class="btnSave" @click="clickSave">保存</button>
+
+      <button class="btnSetting" type="primary" @click="clickSetting">
+        设置
+      </button>
+    </div>
+
     <ul>
       <li v-for="(item, index) in imglist" :key="index">
         <el-tooltip placement="top">
@@ -176,29 +182,21 @@ export default {
 
 <style lang="scss" scoped>
 .container {
-  position: relative;
-  .prjName {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width:100%;
+  .nav {
+    left: 20px;
+    top: 90px;
     position: relative;
-    display:flex;
-  }
-  .btnModify{
-    position: relative;
-    display:flex;
-  }
-  .btnOK{
-    position: relative;
-    display:flex;
-  }
-  .btnReset{
-    position: relative;
-    display:flex;
-  }
-  .selServe{
-    position: relative;
-    display:flex;
+    display: flex;
+    z-index:0;
   }
   ul {
     position: relative;
+    left: 20px;
+    top: 160px;
     list-style-type: none;
     display: block;
     li {

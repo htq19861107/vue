@@ -1,11 +1,6 @@
 <template>
-  <lzjsheader />
   <div class="login">
-    <el-form
-      label-width="120px"
-      :model="loginForm"
-      class="ruleForm"
-    >
+    <el-form label-width="120px" :model="loginForm" class="ruleForm">
       <el-form-item label="用户名">
         <el-input v-model="loginForm.username" />
       </el-form-item>
@@ -22,23 +17,19 @@
 
 <script>
 import { reactive } from "vue";
-import lzjsheader from "../components/LzjsHeader";
 export default {
-  components: {
-    lzjsheader,
-  },
+  name: "loginCom",
   setup() {
     const userLogin = () => {
       console.log(loginForm);
     };
-
     const loginForm = reactive({
       username: "",
       password: "",
     });
-    const clearData=()=>{
-        loginForm.username = '';
-        loginForm.password = '';
+    const clearData = () => {
+      loginForm.username = "";
+      loginForm.password = "";
     };
     return {
       userLogin,
@@ -52,7 +43,8 @@ export default {
 <style lang="scss" scoped>
 .login {
   position: relative;
-  left: 1200px;
+  width: 100%;
+  left: 800px;
   top: 400px;
   .ruleForm {
     .el-input {
