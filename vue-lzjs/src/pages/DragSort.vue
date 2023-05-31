@@ -1,25 +1,23 @@
 <template>
     <transition-group class="drag-sort-box" name="sort" tag="div" @dragover="dragover($event)">
-        <div class="svgRow" v-for="(itemRow,nRow) in images" :key="nRow">
         <div
             :class="[itemClass, 'drag-sort-item']"
-            v-for="(item,nCol) in itemRow"
+            v-for="(item,index) in images"
             :key="item"
             :draggable="true"
-            @dragstart="dragstart(item, nRow,nCol)"
+            @dragstart="dragstart(item, index)"
             @dragenter="dragenter(item, $event)"
             @dragend="dragend(item, $event)"
             @dragover="dragover($event)"
         >
-            <p class="moxsind">{{ index + 1 }}</p>
+            <!-- <p class="moxsind">{{ index + 1 }}</p> -->
             <img :src="item" :class="index == dargIndex ? 'active' : ''" />
         </div>
-    </div>
     </transition-group>
 </template>
 
 <script>
-import { ref ,reactive} from 'vue';
+import { ref } from 'vue';
 export default {
     name: 'DragSort',
     props: {
@@ -31,18 +29,16 @@ export default {
         itemClass: String,//自定义类名
     },
     setup(prop, ctx) {
-        let images = reactive([...prop.imageList]);
-        console.log(images);
-        //images = images.map((v, i) => v = v + '?index=' + i);//不重复key
+        let images = ref([...prop.imageList]);
+        images.value = images.value.map((v, i) => v = v + '?index=' + i);//不重复key
         let dargIndex = ref(-1);
 
         let oldData = null; 
         let newData = null; 
 
-        function dragstart(value, nRow,nCol) {
-            // oldData = value
-            // dargIndex.value = indiex
-            console.log(nRow + '-----------' + nCol)
+        function dragstart(value, index) {
+            oldData = value
+            dargIndex.value = index
         }
         function dragenter(value, e) {
             newData = value
@@ -75,6 +71,7 @@ export default {
         return {
             images,
             dargIndex,
+
             dragover,
             dragstart,
             dragenter,
@@ -90,11 +87,6 @@ export default {
     margin: 0;
     box-sizing: border-box;
     line-height: 1;
-}
-.svgRow{
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;  
 }
 .drag-sort-box {
     width: 100%;

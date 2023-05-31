@@ -1,12 +1,18 @@
 <template>
   <div class="nav">
-    <el-input class="prjName" size="default" placeholder="Untitled Project" />
+    <el-input
+      class="prjName"
+      v-model="prjName"
+      size="default"
+      :disabled="bDisabled"
+      placeholder="Untitled Project"
+    />
     <el-button
       class="btnModify"
       v-show="rename"
       type="primary"
       :icon="Edit"
-      @click="clickPrjName"
+      @click="clickModifyPrjName"
     >
       修改
     </el-button>
@@ -15,7 +21,7 @@
       v-show="!rename"
       type="primary"
       :icon="Select"
-      @click="clickPrjName"
+      @click="clickBtnOKPrjName"
       >确定</el-button
     >
     <el-button
@@ -23,7 +29,7 @@
       v-show="!rename"
       type="primary"
       :icon="CloseBold"
-      @click="clickPrjName"
+      @click="clickResetPrjName"
     >
       清空
     </el-button>
@@ -44,7 +50,11 @@
     >
       运行
     </el-button>
-    <el-button class="btnSave" type="primary" :icon="Management" @click="clickSave"
+    <el-button
+      class="btnSave"
+      type="primary"
+      :icon="Management"
+      @click="clickSave"
       >保存</el-button
     >
     <el-button
@@ -52,9 +62,23 @@
       type="primary"
       :icon="Setting"
       @click="clickSetting"
+    />
+    <el-dialog
+      v-model="dialogVisible"
+      title="Tips"
+      width="30%"
+      :before-close="handleClose"
     >
-      设置
-    </el-button>
+      <span>This is a message</span>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">Cancel</el-button>
+          <el-button type="primary" @click="dialogVisible = false">
+            Confirm
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -66,13 +90,16 @@ import {
   CloseBold,
   Setting,
   VideoPlay,
-  Management
+  Management,
 } from "@element-plus/icons-vue";
 export default {
   name: "computeTitle",
   setup() {
     let rename = ref(true);
     let curServe = ref("");
+    let bDisabled = ref(true);
+    let prjName = ref("");
+    let dialogVisible = ref(false);
     const servelist = reactive([
       {
         value: 1,
@@ -85,9 +112,15 @@ export default {
         state: "1",
       },
     ]);
-    const clickPrjName = () => {
+    const clickModifyPrjName = () => {
       rename.value = !rename.value;
+      bDisabled.value = !bDisabled.value;
     };
+    const clickBtnOKPrjName = () => {
+      rename.value = !rename.value;
+      bDisabled.value = !bDisabled.value;
+    };
+    const clickResetPrjName = () => {};
     const clickRun = () => {
       console.log("clickRun");
     };
@@ -95,13 +128,18 @@ export default {
       console.log("clickSave");
     };
     const clickSetting = () => {
-      console.log("clickSetting");
+      dialogVisible.value = true;
     };
     return {
+      prjName,
       rename,
+      bDisabled,
+      dialogVisible,
       curServe,
       servelist,
-      clickPrjName,
+      clickModifyPrjName,
+      clickBtnOKPrjName,
+      clickResetPrjName,
       clickRun,
       clickSave,
       clickSetting,
@@ -111,7 +149,7 @@ export default {
       CloseBold,
       Setting,
       VideoPlay,
-      Management
+      Management,
     };
   },
 };
@@ -126,36 +164,36 @@ export default {
   top: 90px;
 
   .prjName {
-    position:absolute;
-    width:200px;
+    position: absolute;
+    width: 200px;
   }
   .btnModify {
-    position:absolute;
-    left:220px;
+    position: absolute;
+    left: 220px;
   }
   .btnOK {
-    position:absolute;
-    left:220px;
+    position: absolute;
+    left: 220px;
   }
   .btnReset {
-    position:absolute;
-    left:320px;
+    position: absolute;
+    left: 320px;
   }
-  .selServe{
-    position:absolute;
-    left:450px;
+  .selServe {
+    position: absolute;
+    left: 450px;
   }
   .btnRun {
-    position:absolute;
-    left:700px;
+    position: absolute;
+    left: 700px;
   }
   .btnSave {
-    position:absolute;
-    left:800px;
+    position: absolute;
+    left: 800px;
   }
   .btnSetting {
-    position:absolute;
-    left:900px;
+    position: absolute;
+    left: 900px;
   }
 }
 </style>

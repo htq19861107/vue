@@ -1,61 +1,51 @@
 <template>
   <div class="dropx">
-    <DragSort
-      :imageList="imageList"
-      :sortType="'exchange'"
-      :item-class="'citem'"
-      @change="sortChange"
-    />
+      <DragSort
+          :imageList="imageList"
+          :sortType="'exchange'"
+          :item-class="'citem'"
+          @change="sortChange"
+      />
   </div>
 
-  <!-- <div class="dropx">
-        <DragSort
-            :imageList="imageList"
-            :sortType="'insert'"
-            :item-class="'bitem'"
-            @change="sortChange"
-        />
-    </div> -->
+  <div class="dropx">
+      <DragSort
+          :imageList="imageList"
+          :sortType="'insert'"
+          :item-class="'bitem'"
+          @change="sortChange"
+      />
+  </div>
 </template>
 
 <script>
-import DragSort from "./DragSort.vue";
+import DragSort from './DragSort.vue'
 
 export default {
-  name: "App",
+  name: 'dragTest',
   components: {
-    DragSort,
+      DragSort
   },
   setup() {
-    const imageList = [
-      [
-        "https://img2.baidu.com/it/u=1814268193,3619863984&fm=253&fmt=auto&app=138&f=JPEG?w=632&h=500",
-        "https://img1.baidu.com/it/u=1407750889,3441968730&fm=253&fmt=auto&app=120&f=JPEG?w=1200&h=799",
-        "https://img0.baidu.com/it/u=1721391133,702358773&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=625",
-        "https://img1.baidu.com/it/u=3316754777,2519856621&fm=253&fmt=auto&app=138&f=JPEG?w=653&h=500",
-        "https://img1.baidu.com/it/u=3851364429,4209170710&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "https://img1.baidu.com/it/u=3851364429,4209170710&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-      ],
-      [
-        "https://img2.baidu.com/it/u=1814268193,3619863984&fm=253&fmt=auto&app=138&f=JPEG?w=632&h=500",
-        "https://img1.baidu.com/it/u=1407750889,3441968730&fm=253&fmt=auto&app=120&f=JPEG?w=1200&h=799",
-        "https://img0.baidu.com/it/u=1721391133,702358773&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=625",
-        "https://img1.baidu.com/it/u=3316754777,2519856621&fm=253&fmt=auto&app=138&f=JPEG?w=653&h=500",
-        "https://img1.baidu.com/it/u=3851364429,4209170710&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "https://img1.baidu.com/it/u=3851364429,4209170710&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-      ],
-    ];
+      const imageList = [
+          'https://img2.baidu.com/it/u=1814268193,3619863984&fm=253&fmt=auto&app=138&f=JPEG?w=632&h=500',
+          'https://img1.baidu.com/it/u=1407750889,3441968730&fm=253&fmt=auto&app=120&f=JPEG?w=1200&h=799',
+          'https://img0.baidu.com/it/u=1721391133,702358773&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=625',
+          'https://img1.baidu.com/it/u=3316754777,2519856621&fm=253&fmt=auto&app=138&f=JPEG?w=653&h=500',
+          'https://img1.baidu.com/it/u=3851364429,4209170710&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
+          'https://img1.baidu.com/it/u=3851364429,4209170710&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
+      ]
 
-    function sortChange(newArr) {
-      console.log(newArr);
-    }
+      function sortChange(newArr) {
+          console.log(newArr);
+      }
 
-    return {
-      imageList,
-      sortChange,
-    };
-  },
-};
+      return {
+          imageList,
+          sortChange
+      }
+  }
+}
 </script>
 
 <style scoped>
@@ -74,3 +64,5 @@ export default {
   border: 1px dashed green;
 }
 </style>
+
+
