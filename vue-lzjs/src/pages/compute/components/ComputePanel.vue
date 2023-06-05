@@ -23,15 +23,15 @@
             <div class="panelTitle">{{ indexCol }}</div>
           </li>
         </ul>
-        <div v-for="(itemRow, indexRow) in bgsvg" :key="indexRow">
-          <span v-for="(item, indexCol) in itemRow" :key="indexCol">
-            <span
-              class="svgbg"
-              @dragenter="dragenter(item, $event)"
-              @dragover="dragover($event)"
-            >
-              <img :src="item.url" />
-            </span>
+        <div class="svgrow" v-for="(itemRow, indexRow) in bgsvg" :key="indexRow">
+          <span
+            class="svgbg"
+            v-for="(item, indexCol) in itemRow"
+            :key="indexCol"
+            @dragenter="dragenter(item, $event)"
+            @dragover="dragover($event)"
+          >
+            <img :src="item.url" />
           </span>
         </div>
       </div>
@@ -103,7 +103,9 @@ export default {
     function dragenter(value, e) {
       console.log("dragenter");
       newData = value;
-      console.log(newData);
+      console.log(newData.col);
+      console.log(newData.row);
+      console.log(newData.url);
       e.preventDefault();
     }
 
@@ -126,7 +128,10 @@ export default {
       console.log("*********************************");
       console.log(oldData.url);
       // ];
-      bgsvg[0][1].url = require("../../../assets/gate/H.png");
+      console.log(newData.col);
+      console.log(newData.row);
+      console.log(newData.url);
+      bgsvg[newData.row][newData.col].url = oldData.url;
       //ctx.emit('change', images.value)
       // }
       //dargIndex.value = -1;
@@ -170,7 +175,6 @@ export default {
         pointer-events: none;
       }
     }
-
     .computebg {
       .panelTitle {
         padding: 16px;
@@ -178,8 +182,6 @@ export default {
         overflow-x: hidden;
         overflow-x: auto;
       }
-
-      // white-space: nowrap;
       ul {
         position: relative;
         left: 0px;
@@ -194,11 +196,14 @@ export default {
         }
       }
 
-      .svgRow {
+      .svgrow {
+        white-space: nowrap;
         .svgbg {
           width: 32px;
           height: 32px;
-          pointer-events: none;
+          img {
+            margin: 0 30px 0 0;
+          }
         }
       }
     }
