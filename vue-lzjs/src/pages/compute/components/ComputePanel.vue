@@ -23,13 +23,20 @@
             <div class="panelTitle">{{ indexCol }}</div>
           </li>
         </ul>
-        <div class="svgrow" v-for="(itemRow, indexRow) in bgsvg" :key="indexRow">
+        <div
+          class="svgrow"
+          v-for="(itemRow, indexRow) in bglist"
+          :key="indexRow"
+        >
           <span
             class="svgbg"
             v-for="(item, indexCol) in itemRow"
             :key="indexCol"
+            :draggable="true"
+            @dragstart="dragstart(item, index)"
             @dragenter="dragenter(item, $event)"
             @dragover="dragover($event)"
+            @dragend="dragend(item, $event)"
           >
             <img :src="item.url" />
           </span>
@@ -45,7 +52,7 @@ export default {
   name: "computePanel",
   setup() {
     const Qubits = 100;
-    const imglist = [
+    const imglist = reactive([
       {
         name: "H",
         url: require("../../../assets/gate/H.png"),
@@ -66,37 +73,98 @@ export default {
         url: require("../../../assets/gate/Z.png"),
         tooltip: "Z",
       },
-    ];
-    const bglist = [
+    ]);
+    const bglist = reactive([
       [
-        { row: 0, col: 0, url: require("../../../assets/svg/Line.svg") },
-        { row: 0, col: 1, url: require("../../../assets/svg/Line.svg") },
-        { row: 0, col: 2, url: require("../../../assets/svg/Line.svg") },
-        { row: 0, col: 3, url: require("../../../assets/svg/Line.svg") },
-        { row: 0, col: 4, url: require("../../../assets/svg/Line.svg") },
-        { row: 0, col: 5, url: require("../../../assets/svg/Line.svg") },
+        {
+          row: 0,
+          col: 0,
+          url: require("../../../assets/svg/Line.svg"),
+          drag: false,
+        },
+        {
+          row: 0,
+          col: 1,
+          url: require("../../../assets/svg/Line.svg"),
+          drag: false,
+        },
+        {
+          row: 0,
+          col: 2,
+          url: require("../../../assets/svg/Line.svg"),
+          drag: false,
+        },
+        {
+          row: 0,
+          col: 3,
+          url: require("../../../assets/svg/Line.svg"),
+          drag: false,
+        },
+        {
+          row: 0,
+          col: 4,
+          url: require("../../../assets/svg/Line.svg"),
+          drag: false,
+        },
+        {
+          row: 0,
+          col: 5,
+          url: require("../../../assets/svg/Line.svg"),
+          drag: false,
+        },
       ],
       [
-        { row: 1, col: 0, url: require("../../../assets/svg/Line.svg") },
-        { row: 1, col: 1, url: require("../../../assets/svg/Line.svg") },
-        { row: 1, col: 2, url: require("../../../assets/svg/Line.svg") },
-        { row: 1, col: 3, url: require("../../../assets/svg/Line.svg") },
-        { row: 1, col: 4, url: require("../../../assets/svg/Line.svg") },
-        { row: 1, col: 5, url: require("../../../assets/svg/Line.svg") },
-        { row: 1, col: 6, url: require("../../../assets/svg/Line.svg") },
+        {
+          row: 1,
+          col: 0,
+          url: require("../../../assets/svg/Line.svg"),
+          drag: false,
+        },
+        {
+          row: 1,
+          col: 1,
+          url: require("../../../assets/svg/Line.svg"),
+          drag: false,
+        },
+        {
+          row: 1,
+          col: 2,
+          url: require("../../../assets/svg/Line.svg"),
+          drag: false,
+        },
+        {
+          row: 1,
+          col: 3,
+          url: require("../../../assets/svg/Line.svg"),
+          drag: false,
+        },
+        {
+          row: 1,
+          col: 4,
+          url: require("../../../assets/svg/Line.svg"),
+          drag: false,
+        },
+        {
+          row: 1,
+          col: 5,
+          url: require("../../../assets/svg/Line.svg"),
+          drag: false,
+        },
+        {
+          row: 1,
+          col: 6,
+          url: require("../../../assets/svg/Line.svg"),
+          drag: false,
+        },
       ],
-    ];
-    let images = reactive(imglist);
-    let bgsvg = reactive(bglist);
-    //images.value = images.value.map((v, i) => v = v + '?index=' + i);//不重复key
-    // let dargIndex = ref(-1);
+    ]);
 
     let oldData = null;
     let newData = null;
 
     function dragstart(value, index) {
       oldData = value;
-      //dargIndex.value = index;
+
       console.log(index);
       console.log("dragstart");
     }
@@ -118,23 +186,20 @@ export default {
       console.log("dragend");
       console.log(item);
       console.log(event);
-      // if (oldData !== newData) {
-      // let oldIndex = images.value.indexOf(oldData);
-      // let newIndex = images.value.indexOf(newData);
 
-      // [images.value[oldIndex], images.value[newIndex]] = [
-      //   images.value[newIndex],
-      //   images.value[oldIndex],
       console.log("*********************************");
       console.log(oldData.url);
-      // ];
+      console.log("*********************************");
       console.log(newData.col);
       console.log(newData.row);
       console.log(newData.url);
-      bgsvg[newData.row][newData.col].url = oldData.url;
-      //ctx.emit('change', images.value)
-      // }
-      //dargIndex.value = -1;
+      bglist[newData.row][newData.col].url = oldData.url;
+      bglist[newData.row][newData.col].drag = true;
+      if (item.drag) {
+        bglist[item.row][item.col].url = require("../../../assets/svg/Line.svg");
+        bglist[item.row][item.col].drag = false;
+      }
+
     }
     return {
       oldData,
@@ -146,8 +211,6 @@ export default {
       Qubits,
       imglist,
       bglist,
-      bgsvg,
-      images,
     };
   },
 };
