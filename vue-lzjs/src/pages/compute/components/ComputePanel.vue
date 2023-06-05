@@ -1,46 +1,51 @@
 <template>
   <div class="contentPanel">
-    <div class="dragicon">
-      <ul>
-        <li v-for="(item, index) in imglist" :key="index">
-          <el-tooltip placement="top">
-            <img :src="item.url" />
-            <span>鼠标悬浮时显示提示</span>
-            <template v-slot:content>
-              <div class="tooltip-content">
-                <p>{{ item.tooltip }}</p>
-              </div>
-            </template>
-          </el-tooltip>
-          <p>{{ item.name }}</p>
-        </li>
-      </ul>
-    </div>
-    <div class="computebg">
-      <ul>
-        <li v-for="(item, indexCol) in Qubits" :key="indexCol">
-          <div class="panelTitle">{{ indexCol }}</div>
-        </li>
-      </ul>
-      <ul>
-        <template v-for="(itemRow, indexRow) in bglist" :key="indexRow">
-          <div class="svgRow">
-            <li v-for="(item, indexCol) in itemRow" :key="indexCol">
-              <img class="svgbg" src="../../../assets/svg/Line.svg" />
-            </li>
-          </div>
-        </template>
-      </ul>
-    </div>
+    <transition-group class="dragicon" tag="ul">
+      <span :class="dragicon" v-for="(item, index) in imglist" :key="item">
+        <el-tooltip placement="top">
+          <img
+            :src="item.url"
+            :draggable="true"
+            @dragstart="dragstart(item, index)"
+            @dragend="dragend(item, $event)"
+          />
+          <span>鼠标悬浮时显示提示</span>
+          <template v-slot:content>
+            <div class="tooltip-content">
+              <p>{{ item.tooltip }}</p>
+            </div>
+          </template>
+        </el-tooltip>
+      </span>
+      <div class="computebackground">
+        <ul>
+          <li v-for="(item, indexCol) in Qubits" :key="indexCol">
+            <div class="panelTitle">{{ indexCol }}</div>
+          </li>
+        </ul>
+
+        <div class="svgtest" v-for="(itemRow, indexRow) in bgsvg" :key="indexRow">
+          <span  v-for="(item, indexCol) in itemRow" :key="indexCol">
+            <span
+              class="svgbackground"
+              @dragenter="dragenter(item, $event)"
+              @dragover="dragover($event)"
+            >
+              <img :src="item.url" />
+            </span>
+          </span>
+        </div>
+      </div>
+    </transition-group>
   </div>
 </template>
 
 <script>
-
+import { reactive } from "vue";
 export default {
   name: "computePanel",
   setup() {
-    const Qubits=100;
+    const Qubits = 100;
     const imglist = [
       {
         name: "H",
@@ -65,27 +70,69 @@ export default {
     ];
     const bglist = [
       [
-        { row: 0, col: 0 },
-        { row: 0, col: 1 },
-        { row: 0, col: 2 },
-        { row: 0, col: 3 },
-        { row: 0, col: 4 },
-        { row: 0, col: 5 },
+        { row: 0, col: 0, url: require("../../../assets/svg/Line.svg") },
+        { row: 0, col: 1, url: require("../../../assets/svg/Line.svg") },
+        { row: 0, col: 2, url: require("../../../assets/svg/Line.svg") },
+        { row: 0, col: 3, url: require("../../../assets/svg/Line.svg") },
+        { row: 0, col: 4, url: require("../../../assets/svg/Line.svg") },
+        { row: 0, col: 5, url: require("../../../assets/svg/Line.svg") },
       ],
       [
-        { row: 1, col: 0 },
-        { row: 1, col: 1 },
-        { row: 1, col: 2 },
-        { row: 1, col: 3 },
-        { row: 1, col: 4 },
-        { row: 1, col: 5 },
-        { row: 1, col: 6 },
+        { row: 1, col: 0, url: require("../../../assets/svg/Line.svg") },
+        { row: 1, col: 1, url: require("../../../assets/svg/Line.svg") },
+        { row: 1, col: 2, url: require("../../../assets/svg/Line.svg") },
+        { row: 1, col: 3, url: require("../../../assets/svg/Line.svg") },
+        { row: 1, col: 4, url: require("../../../assets/svg/Line.svg") },
+        { row: 1, col: 5, url: require("../../../assets/svg/Line.svg") },
+        { row: 1, col: 6, url: require("../../../assets/svg/Line.svg") },
       ],
     ];
+    let images = reactive(imglist);
+    let bgsvg = reactive(bglist);
+    //images.value = images.value.map((v, i) => v = v + '?index=' + i);//不重复key
+    // let dargIndex = ref(-1);
+
+    let oldData = null;
+    let newData = null;
+
+    function dragstart(value, index) {
+      oldData = value;
+      //dargIndex.value = index;
+      console.log(index);
+      console.log("dragstart");
+    }
+    function dragenter(value, e) {
+      console.log("dragenter");
+      newData = value;
+      console.log(newData);
+      e.preventDefault();
+    }
+
+    function dragover(e) {
+      console.log("dragover");
+      e.preventDefault();
+    }
+
+    function dragend(item, event) {
+      console.log("dragend");
+      console.log(item);
+      console.log(event);
+      console.log("*********************************");
+      console.log(oldData.url);
+      bgsvg[0][1].url = require("../../../assets/gate/H.png");
+    }
     return {
+      oldData,
+      newData,
+      dragstart,
+      dragenter,
+      dragover,
+      dragend,
       Qubits,
       imglist,
       bglist,
+      bgsvg,
+      images,
     };
   },
 };
@@ -97,46 +144,39 @@ export default {
   left: 10px;
   top: 150px;
   width: 100%;
+
   .dragicon {
-    ul {
-      position: relative;
-      left: 0px;
-      top: 0px;
-      list-style-type: none;
-      display: block;
-      li {
+    .computebackground {
+      .panelTitle {
+        padding: 16px;
+        white-space: nowrap;
+        overflow-x: hidden;
+        overflow-x: auto;
+      }
+
+      // white-space: nowrap;
+      ul {
         position: relative;
-        display: inline-block;
-        padding-left: 10px;
+        left: 0px;
+        top: 0px;
+        list-style-type: none;
+        display: block;
+        white-space: nowrap;
+
+        li {
+          position: relative;
+          display: inline-block;
+        }
       }
-    }
-  }
-  .computebg {
-    
-    .panelTitle {
-      padding: 16px;
-      white-space: nowrap;
-      overflow-x: hidden;
-      overflow-x:auto;
-    }
-    // white-space: nowrap;
-    ul {
-      position: relative;
-      left: 0px;
-      top: 0px;
-      list-style-type: none;
-      display: block;
-      white-space: nowrap;
-      li {
-        position: relative;
-        display: inline-block;
+      .svgtest{
+        display:inline
+        .svgbackground {
+            width: 32px;
+            height: 32px;
+            pointer-events: none;
+          }
       }
-    }
-    .svgRow {
-      .svgbg {
-        width: 32px;
-        height: 32px;
-      }
+
     }
   }
 }

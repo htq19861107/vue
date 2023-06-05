@@ -28,12 +28,12 @@ export default {
   },
   setup() {
       const imageList = [
-          'https://img2.baidu.com/it/u=1814268193,3619863984&fm=253&fmt=auto&app=138&f=JPEG?w=632&h=500',
-          'https://img1.baidu.com/it/u=1407750889,3441968730&fm=253&fmt=auto&app=120&f=JPEG?w=1200&h=799',
-          'https://img0.baidu.com/it/u=1721391133,702358773&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=625',
-          'https://img1.baidu.com/it/u=3316754777,2519856621&fm=253&fmt=auto&app=138&f=JPEG?w=653&h=500',
-          'https://img1.baidu.com/it/u=3851364429,4209170710&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
-          'https://img1.baidu.com/it/u=3851364429,4209170710&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
+      require("../assets/gate/H.png"),
+      require("../assets/gate/X.png"),
+      // require("../assets/gate/H.png"),
+      // require("../assets/gate/H.png"),
+      // require("../assets/gate/H.png"),
+      //     require("../assets/gate/H.png"),
       ]
 
       function sortChange(newArr) {

@@ -65,7 +65,7 @@
     />
     <el-dialog
       v-model="dialogVisible"
-      title="Tips"
+      title="设置"
       width="30%"
       :before-close="handleClose"
     >
