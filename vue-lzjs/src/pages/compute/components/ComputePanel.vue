@@ -17,17 +17,16 @@
           </template>
         </el-tooltip>
       </span>
-      <div class="computebackground">
+      <div class="computebg">
         <ul>
           <li v-for="(item, indexCol) in Qubits" :key="indexCol">
             <div class="panelTitle">{{ indexCol }}</div>
           </li>
         </ul>
-
-        <div class="svgtest" v-for="(itemRow, indexRow) in bgsvg" :key="indexRow">
-          <span  v-for="(item, indexCol) in itemRow" :key="indexCol">
+        <div v-for="(itemRow, indexRow) in bgsvg" :key="indexRow">
+          <span v-for="(item, indexCol) in itemRow" :key="indexCol">
             <span
-              class="svgbackground"
+              class="svgbg"
               @dragenter="dragenter(item, $event)"
               @dragover="dragover($event)"
             >
@@ -117,9 +116,20 @@ export default {
       console.log("dragend");
       console.log(item);
       console.log(event);
+      // if (oldData !== newData) {
+      // let oldIndex = images.value.indexOf(oldData);
+      // let newIndex = images.value.indexOf(newData);
+
+      // [images.value[oldIndex], images.value[newIndex]] = [
+      //   images.value[newIndex],
+      //   images.value[oldIndex],
       console.log("*********************************");
       console.log(oldData.url);
+      // ];
       bgsvg[0][1].url = require("../../../assets/gate/H.png");
+      //ctx.emit('change', images.value)
+      // }
+      //dargIndex.value = -1;
     }
     return {
       oldData,
@@ -146,7 +156,22 @@ export default {
   width: 100%;
 
   .dragicon {
-    .computebackground {
+    ul {
+      position: relative;
+      left: 0px;
+      top: 0px;
+      list-style-type: none;
+      display: block;
+
+      li {
+        position: relative;
+        display: inline-block;
+        padding-left: 10px;
+        pointer-events: none;
+      }
+    }
+
+    .computebg {
       .panelTitle {
         padding: 16px;
         white-space: nowrap;
@@ -168,15 +193,14 @@ export default {
           display: inline-block;
         }
       }
-      .svgtest{
-        display:inline
-        .svgbackground {
-            width: 32px;
-            height: 32px;
-            pointer-events: none;
-          }
-      }
 
+      .svgRow {
+        .svgbg {
+          width: 32px;
+          height: 32px;
+          pointer-events: none;
+        }
+      }
     }
   }
 }
