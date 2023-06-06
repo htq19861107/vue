@@ -1,12 +1,12 @@
 <template>
   <div class="contentPanel">
     <transition-group class="dragicon" tag="ul">
-      <span :class="dragicon" v-for="(item, index) in imglist" :key="item">
+      <span class="quantumGates" v-for="(item) in imglist" :key="item">
         <el-tooltip placement="top">
           <img
             :src="item.url"
             :draggable="true"
-            @dragstart="dragstart(item, index)"
+            @dragstart="dragstart(item)"
             @dragend="dragend(item, $event)"
           />
           <span>鼠标悬浮时显示提示</span>
@@ -33,7 +33,7 @@
             v-for="(item, indexCol) in itemRow"
             :key="indexCol"
             :draggable="true"
-            @dragstart="dragstart(item, index)"
+            @dragstart="dragstart(item)"
             @dragenter="dragenter(item, $event)"
             @dragover="dragover($event)"
             @dragend="dragend(item, $event)"
@@ -159,26 +159,21 @@ export default {
       ],
     ]);
 
-    let oldData = null;
-    let newData = null;
-
-    function dragstart(value, index) {
-      oldData = value;
-
-      console.log(index);
-      console.log("dragstart");
+    let startDataUrl = "";
+    let endDataUrl = '';
+    let startData = null;
+    let endData = null;
+    function dragstart(value) {
+      console.log('***************value')
+      console.log(value)
+      startData = value;
     }
     function dragenter(value, e) {
-      console.log("dragenter");
-      newData = value;
-      console.log(newData.col);
-      console.log(newData.row);
-      console.log(newData.url);
+      endData = value;
       e.preventDefault();
     }
 
     function dragover(e) {
-      console.log("dragover");
       e.preventDefault();
     }
 
@@ -186,24 +181,30 @@ export default {
       console.log("dragend");
       console.log(item);
       console.log(event);
+      startDataUrl = startData.url;
+      endDataUrl = endData.url;
 
-      console.log("*********************************");
-      console.log(oldData.url);
-      console.log("*********************************");
-      console.log(newData.col);
-      console.log(newData.row);
-      console.log(newData.url);
-      bglist[newData.row][newData.col].url = oldData.url;
-      bglist[newData.row][newData.col].drag = true;
+
+      bglist[endData.row][endData.col].url = startDataUrl;
+      bglist[endData.row][endData.col].drag = true;
+
+      console.log("*************startDataUrl********************");
+      console.log(startDataUrl);
+      console.log("**************endDataUrl*******************");
+      console.log(endDataUrl);
+      console.log("*************startData********************");
+      console.log(startData);
+      console.log("**************endData*******************");
+      console.log(endData);
       if (item.drag) {
-        bglist[item.row][item.col].url = require("../../../assets/svg/Line.svg");
-        bglist[item.row][item.col].drag = false;
+        
+        bglist[startData.row][startData.col].url = endDataUrl;
+        bglist[startData.row][startData.col].drag = endData.drag;
       }
-
     }
     return {
-      oldData,
-      newData,
+      // startData,
+      // endData,
       dragstart,
       dragenter,
       dragover,
@@ -224,7 +225,8 @@ export default {
   width: 100%;
 
   .dragicon {
-    ul {
+    .quantumGates{
+      ul {
       position: relative;
       left: 0px;
       top: 0px;
@@ -238,9 +240,13 @@ export default {
         pointer-events: none;
       }
     }
+    }
     .computebg {
       .panelTitle {
-        padding: 16px;
+        position: relative;
+        left:0px;
+        top:0px;
+        padding: 10px;
         white-space: nowrap;
         overflow-x: hidden;
         overflow-x: auto;
