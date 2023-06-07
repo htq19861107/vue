@@ -1,5 +1,6 @@
 <template>
   <div class="codePanel">
+    <div>代码编译器：</div>
     <textarea class="codeFile" :placeholder="placeholder">111</textarea>
   </div>
 </template>

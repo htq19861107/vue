@@ -272,8 +272,6 @@ export default {
         top: 0px;
         padding: 10px;
         white-space: nowrap;
-        // overflow-x: hidden;
-        // overflow-x: auto;
       }
       ul {
         position: relative;
@@ -291,7 +289,6 @@ export default {
 
       .svgrow {
         white-space: nowrap;
-
         .qubitNum {
           left: 0;
           right: 0;

@@ -9,13 +9,18 @@
       id="histogramChart"    
     >
     </div>
+    <div
+      class="arrayChart"
+      id="arrayChart"    
+    >
+    </div>
   </div>
 </template>
 
 <script>
 import { reactive, onMounted } from "vue";
 import * as echarts from "echarts";
-
+import circlebg from '../../../assets/circle-bg.svg'
 // 如果是vue3非setup情况，还需要注册
 
 export default {
@@ -24,14 +29,14 @@ export default {
     const stateDensityChart = reactive({
       option: {
         title: {
-          text: "某地区蒸发量和降水量",
-          subtext: "纯属虚构",
+          text: "投影概率",
+          // subtext: "纯属虚构",
         },
         tooltip: {
           trigger: "axis",
         },
         legend: {
-          data: ["蒸发量", "降水量"],
+          data: ["概率"],
         },
         toolbox: {
           show: true,
@@ -48,18 +53,18 @@ export default {
           {
             type: "category",
             data: [
-              "1月",
-              "2月",
-              "3月",
-              "4月",
-              "5月",
-              "6月",
-              "7月",
-              "8月",
-              "9月",
-              "10月",
-              "11月",
-              "12月",
+              "0001",
+              "0010",
+              "0011",
+              "0111",
+              "1000",
+              "1001",
+              "1010",
+              "1011",
+              "1100",
+              "1101",
+              "1110",
+              "1111",
             ],
           },
         ],
@@ -70,11 +75,11 @@ export default {
         ],
         series: [
           {
-            name: "蒸发量",
+            name: "概率",
             type: "bar",
             data: [
-              2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4,
-              3.3,
+              0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2,
+              0.6,
             ],
             markPoint: {
               data: [
@@ -86,29 +91,29 @@ export default {
               data: [{ type: "average", name: "平均值" }],
             },
           },
-          {
-            name: "降水量",
-            type: "bar",
-            data: [
-              2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0,
-              2.3,
-            ],
-            markPoint: {
-              data: [
-                {
-                  name: "年最高",
-                  value: 182.2,
-                  xAxis: 7,
-                  yAxis: 183,
-                  symbolSize: 18,
-                },
-                { name: "年最低", value: 2.3, xAxis: 11, yAxis: 3 },
-              ],
-            },
-            markLine: {
-              data: [{ type: "average", name: "平均值" }],
-            },
-          },
+          // {
+          //   name: "降水量",
+          //   type: "bar",
+          //   data: [
+          //     2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0,
+          //     2.3,
+          //   ],
+          //   markPoint: {
+          //     data: [
+          //       {
+          //         name: "年最高",
+          //         value: 182.2,
+          //         xAxis: 7,
+          //         yAxis: 183,
+          //         symbolSize: 18,
+          //       },
+          //       { name: "年最低", value: 2.3, xAxis: 11, yAxis: 3 },
+          //     ],
+          //   },
+          //   markLine: {
+          //     data: [{ type: "average", name: "平均值" }],
+          //   },
+          // },
         ],
       },
     });
@@ -148,6 +153,52 @@ export default {
         ],
       },
     });
+    let xData = [];
+    let yData = [];
+    let data = [];
+  
+    let _circlebg = 'image://'+circlebg;
+    for (let y = 0; y < 5; y++) {
+      yData.push(y);
+      for (let x = 0; x < 5; x++) {
+        data.push([x, y, 5]);
+      }
+    }
+    for (let x = 0; x < 5; x++) {
+      xData.push(x);
+    }
+    const stateArrayChart = reactive({
+      option: {
+        grid: {
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
+        },
+        xAxis: {
+          show: false,
+          type: "category",
+          data: xData,
+        },
+        yAxis: {
+          show: false,
+          type: "category",
+          data: yData,
+        },
+        series: [
+          {
+            type: "scatter",
+            data: data,
+            
+            symbol: _circlebg,
+            symbolKeepAspect: true,
+            universalTransition: true,
+            symbolSize: 80,
+            
+          },
+        ],
+      },
+    });
     const initeCharts = () => {
       let densityChart = echarts.init(document.getElementById("densityChart"));
       // 绘制图表
@@ -157,7 +208,13 @@ export default {
         document.getElementById("histogramChart")
       );
       histogramChart.setOption(stateHistogramChart.option);
+
+      let arrayChart = echarts.init(
+        document.getElementById("arrayChart")
+      );
+      arrayChart.setOption(stateArrayChart.option);
     };
+
 
     onMounted(() => {
       initeCharts();
@@ -165,6 +222,7 @@ export default {
     return {
       stateDensityChart,
       stateHistogramChart,
+      stateArrayChart,
       initeCharts,
     };
   },
@@ -188,6 +246,14 @@ export default {
   .histogramChart {
     position: relative;
     left:600px;
+    top:-300px;
+
+    width:400px;
+    height: 400px;
+  }
+  .arrayChart{
+    position: relative;
+    left:900px;
     top:-300px;
 
     width:400px;

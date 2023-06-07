@@ -5,6 +5,13 @@ export default createStore({
   
   // 1、 存储所有全局数据
   state: {
+    userInfo: {
+        userName:'',
+    },
+    quantumData:{
+        prjName:'',
+        runLine:'',
+    }
     
   },
  
