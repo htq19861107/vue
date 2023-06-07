@@ -84,6 +84,7 @@ export default {
   position:absolute;
   left: 0px;
   top: 0px;
+  width: 100%;
   z-index:999;
   background-color: #ccc;
   .nav {
@@ -99,7 +100,7 @@ export default {
   }
   .nav-item {
     position: relative;
-    width: 200px;
+    width: 50%;
     white-space: nowrap;
     margin: 0 20px;
     cursor: pointer;

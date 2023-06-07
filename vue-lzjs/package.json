@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
+    "axios": "^1.4.0",
     "core-js": "^3.8.3",
     "echarts": "^5.4.2",
     "element-plus": "^2.3.5",
@@ -39,9 +40,7 @@
     "parserOptions": {
       "parser": "@babel/eslint-parser"
     },
-    "rules": {
-  
-    }
+    "rules": {}
   },
   "browserslist": [
     "> 1%",

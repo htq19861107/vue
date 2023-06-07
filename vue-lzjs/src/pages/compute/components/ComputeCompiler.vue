@@ -18,7 +18,7 @@ export default {
   top: 150px;
   right:0px;
   bottom:100px;
-  width: 300px;
+  width:300px;
   .codeFile{
     position: relative;
     height: 800px;
