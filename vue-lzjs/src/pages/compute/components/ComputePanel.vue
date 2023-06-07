@@ -1,13 +1,13 @@
 <template>
   <div class="contentPanel">
     <transition-group class="dragicon" tag="ul">
-      <span class="quantumGates" v-for="(item) in imglist" :key="item">
+      <span class="quantumGates" v-for="item in imglist" :key="item">
         <el-tooltip placement="top">
           <img
             :src="item.url"
             :draggable="true"
-            @dragstart="dragstart(item)"
-            @dragend="dragend(item, $event)"
+            @dragstart="dragStart(item)"
+            @dragend="dragEnd(item)"
           />
           <span>鼠标悬浮时显示提示</span>
           <template v-slot:content>
@@ -29,18 +29,28 @@
           :key="indexRow"
         >
           <span
+            class="qubitNum"
+            @mouseenter="mouseEnter(indexRow)"
+            @mouseleave="mouseLeave(indexRow)"
+            >Q0</span
+          >
+
+          <el-icon @click="clickRemove(indexRow)"><Remove /></el-icon>
+          <span
             class="svgbg"
             v-for="(item, indexCol) in itemRow"
             :key="indexCol"
             :draggable="true"
-            @dragstart="dragstart(item)"
-            @dragenter="dragenter(item, $event)"
-            @dragover="dragover($event)"
-            @dragend="dragend(item, $event)"
+            @dragstart="dragStart(item)"
+            @dragenter="dragEnter(item, $event)"
+            @dragover="dragOver($event)"
+            @dragend="dragEnd(item)"
           >
             <img :src="item.url" />
           </span>
+          
         </div>
+        <el-icon @click="clickAdd()"><CirclePlus /></el-icon>
       </div>
     </transition-group>
   </div>
@@ -74,7 +84,7 @@ export default {
         tooltip: "Z",
       },
     ]);
-    const bglist = reactive([
+    let bglist = reactive([
       [
         {
           row: 0,
@@ -160,55 +170,66 @@ export default {
     ]);
 
     let startDataUrl = "";
-    let endDataUrl = '';
+    let endDataUrl = "";
     let startData = null;
     let endData = null;
-    function dragstart(value) {
-      console.log('***************value')
-      console.log(value)
+
+    const dragStart = (value) => {
       startData = value;
-    }
-    function dragenter(value, e) {
+    };
+    const dragEnter = (value, e) => {
       endData = value;
       e.preventDefault();
-    }
+    };
 
-    function dragover(e) {
+    const dragOver = (e) => {
       e.preventDefault();
-    }
+    };
 
-    function dragend(item, event) {
-      console.log("dragend");
-      console.log(item);
-      console.log(event);
+    const dragEnd = (item) => {
       startDataUrl = startData.url;
       endDataUrl = endData.url;
-
 
       bglist[endData.row][endData.col].url = startDataUrl;
       bglist[endData.row][endData.col].drag = true;
 
-      console.log("*************startDataUrl********************");
-      console.log(startDataUrl);
-      console.log("**************endDataUrl*******************");
-      console.log(endDataUrl);
-      console.log("*************startData********************");
-      console.log(startData);
-      console.log("**************endData*******************");
-      console.log(endData);
       if (item.drag) {
-        
         bglist[startData.row][startData.col].url = endDataUrl;
         bglist[startData.row][startData.col].drag = endData.drag;
       }
-    }
+    };
+    const mouseEnter = () => {};
+    const mouseLeave = () => {};
+    const clickRemove = (index) => {
+      for (let iRow = 0;iRow < bglist.length;iRow++ ) {
+        if(iRow >= index){
+          bglist[iRow] = bglist[iRow + 1];
+        }
+        bglist.pop();
+      }
+    };
+    const clickAdd = () => {
+      const nlen = bglist.length;
+      let bgCol = [];
+      for(let iCol =0;iCol < Qubits;iCol++){
+        let objBg = {};
+        objBg.row = nlen;
+        objBg.col = iCol;
+        objBg.url = require("../../../assets/svg/Line.svg");
+        objBg.drag = false;
+        bgCol.push(objBg);
+      }
+      bglist.push(bgCol)
+    };
     return {
-      // startData,
-      // endData,
-      dragstart,
-      dragenter,
-      dragover,
-      dragend,
+      dragStart,
+      dragEnter,
+      dragOver,
+      dragEnd,
+      mouseEnter,
+      mouseLeave,
+      clickRemove,
+      clickAdd,
       Qubits,
       imglist,
       bglist,
@@ -225,31 +246,34 @@ export default {
   width: 100%;
 
   .dragicon {
-    .quantumGates{
+    .quantumGates {
       ul {
-      position: relative;
-      left: 0px;
-      top: 0px;
-      list-style-type: none;
-      display: block;
-
-      li {
         position: relative;
-        display: inline-block;
-        padding-left: 10px;
-        pointer-events: none;
+        left: 0px;
+        top: 0px;
+        list-style-type: none;
+        display: block;
+
+        li {
+          position: relative;
+          display: inline-block;
+          padding-left: 10px;
+          pointer-events: none;
+        }
       }
     }
-    }
     .computebg {
+      width:1200px;
+      overflow-x:scroll;
+      overflow-y:hidden;
       .panelTitle {
         position: relative;
-        left:0px;
-        top:0px;
+        left: 0px;
+        top: 0px;
         padding: 10px;
         white-space: nowrap;
-        overflow-x: hidden;
-        overflow-x: auto;
+        // overflow-x: hidden;
+        // overflow-x: auto;
       }
       ul {
         position: relative;
@@ -267,6 +291,14 @@ export default {
 
       .svgrow {
         white-space: nowrap;
+
+        .qubitNum {
+          left: 0;
+          right: 0;
+          margin-left: 0;
+          margin-right: 0;
+          width: auto;
+        }
         .svgbg {
           width: 32px;
           height: 32px;
