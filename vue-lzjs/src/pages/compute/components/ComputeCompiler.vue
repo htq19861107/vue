@@ -16,7 +16,9 @@ export default {
   position: absolute;
   left: 1200px;
   top: 150px;
-  width: 100%;
+  right:0px;
+  bottom:100px;
+  width: 300px;
   .codeFile{
     position: relative;
     height: 800px;
