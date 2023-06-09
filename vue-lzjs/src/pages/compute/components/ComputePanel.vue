@@ -59,34 +59,14 @@
 <script>
 import { reactive,onMounted } from "vue";
 import { useStore } from 'vuex'
+import {imgGate,initParam} from '../../../config/baseConfig'
 export default {
   name: "computePanel",
   setup() {
-    const Qubits = 5;
-    const QubitsLineDepth = 100;
+    const Qubits = initParam.computePanel.Qubits;
+    const QubitsLineDepth = initParam.computePanel.QubitsLineDepth;
     const store = useStore()
-    const imglist = reactive([
-      {
-        name: "H",
-        url: require("../../../assets/gate/H.png"),
-        tooltip: "H",
-      },
-      {
-        name: "X",
-        url: require("../../../assets/gate/X.png"),
-        tooltip: "X",
-      },
-      {
-        name: "Y",
-        url: require("../../../assets/gate/Y.png"),
-        tooltip: "Y",
-      },
-      {
-        name: "Z",
-        url: require("../../../assets/gate/Z.png"),
-        tooltip: "Z",
-      },
-    ]);
+    const imglist = reactive(imgGate);
     let bglist = reactive([]);
     let qubitsArray = [];
     let startDataUrl = "";

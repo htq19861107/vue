@@ -8,9 +8,9 @@
 <script>
 import { reactive, onMounted } from "vue";
 import * as echarts from "echarts";
-import h from "../assets/gate/H.png";
+
 import circlebg from "../assets/circle-background.svg";
-import circleblink from '../assets/circle-highlight.svg'
+import circleblink from '../assets/circle-blue.svg'
 import circlered from '../assets/circle-red.svg'
 // 如果是vue3非setup情况，还需要注册
 
@@ -22,7 +22,7 @@ export default {
     let data = [];
     let data1 = [];
     let databg = [];
-    let databg1 = [];
+    
     for (let y = 0; y < 5; y++) {
       yData.push(y);
       for (let x = 0; x < 5; x++) {

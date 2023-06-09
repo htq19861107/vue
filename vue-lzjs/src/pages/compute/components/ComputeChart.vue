@@ -16,11 +16,10 @@
 <script>
 import { reactive, onMounted } from "vue";
 import * as echarts from "echarts";
-import circlebg from '../../../assets/circle-background.svg'
-import circleblink from '../../../assets/circle-highlight.svg'
+
 // 如果是vue3非setup情况，还需要注册
 import ComputeArrayChart from "./ComputeArrayChart";
-import { useStore } from 'vuex'
+
 export default {
   name: "computeChart",
   components: {ComputeArrayChart},
@@ -156,7 +155,7 @@ export default {
     let yData = [];
     let data = [];
   
-    let _circlebg = 'image://'+circlebg;
+
     for (let y = 0; y < 10; y++) {
       yData.push(y);
       for (let x = 0; x < 10; x++) {
