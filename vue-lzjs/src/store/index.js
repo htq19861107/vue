@@ -29,16 +29,24 @@ export default createStore({
   mutations: {
     // 初始化数组
     INITqubitsArray(state,data){
-      const { qubitsArray } = data
-      state.qubitsArray = qubitsArray;
+      const { qubitsArray } = data;
+      state.quantumData.qubitsArray = qubitsArray;
     },
     // 增加量子比特数量
-    ADDqubitsArray(state,rowData){
-      state.qubitsArray.push(rowData);
+    ADDqubitsArray(state,data){
+      const { rowData } = data;
+      state.quantumData.qubitsArray.push(rowData);
     },
     // 减少量子比特
-    REDUCEqubitsArray(state,rowData){
-      state.qubitsArray.arr.slice(rowData - 1, rowData);
+    REMOVEqubitsArray(state,data){
+      const {index} = data;
+      for (let iRow = 0;iRow < state.quantumData.qubitsArray.length;iRow++ ) {
+        if(iRow >= index){
+          state.quantumData.qubitsArray[iRow] = state.quantumData.qubitsArray[iRow + 1];
+        }
+        state.quantumData.qubitsArray.pop();
+      }
+      //state.quantumData.qubitsArray.slice(index - 1, index);
     },
     // 改变量子比特的门
     CHANGEqubitsArray(state,data){

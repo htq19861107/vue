@@ -20,6 +20,7 @@ import circlebg from '../../../assets/circle-background.svg'
 import circleblink from '../../../assets/circle-highlight.svg'
 // 如果是vue3非setup情况，还需要注册
 import ComputeArrayChart from "./ComputeArrayChart";
+import { useStore } from 'vuex'
 export default {
   name: "computeChart",
   components: {ComputeArrayChart},

@@ -147,6 +147,8 @@ export default {
         }
         bglist.pop();
       }
+      
+      store.commit('REMOVEqubitsArray', {index})   
     };
     const clickAdd = () => {
       const nlen = bglist.length;
@@ -160,6 +162,8 @@ export default {
         bgCol.push(objBg);
       }
       bglist.push(bgCol)
+      let rowData = [];
+      store.commit('ADDqubitsArray', {rowData})
     };
     onMounted(() => {
       initBglist();

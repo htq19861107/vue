@@ -10,10 +10,14 @@
 
 <script>
 // 如果是vue3非setup情况，还需要注册
-import { onMounted, reactive } from "vue";
+import { onMounted, reactive,computed } from "vue";
+import { useStore } from 'vuex'
 export default {
   name: "computeArrayChart",
   setup() {
+    const store = useStore();
+    const Qubits = 5;
+    const QubitsLineDepth = 5;
     let imglist = reactive([]);
     const initChart = (nRwo, nCol) => {
       for (let col = 0; col < nCol; col++) {
@@ -28,9 +32,12 @@ export default {
         imglist.push(imgRow);
       }
     };
-
+    // const updateChart = computed(() => {
+    //   const qubitsArray = store.state.quantumData.qubitsArray
+    //   initChart(qubitsArray.length,qubitsArray.length)
+    // })
     onMounted(() => {
-      initChart(5,5);
+      initChart(Qubits,QubitsLineDepth);
       let flag = false;
       setInterval(() => {
         if (flag) {
