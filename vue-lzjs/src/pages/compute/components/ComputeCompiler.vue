@@ -22,7 +22,7 @@ export default {
   width:300px;
   .codeFile{
     position: relative;
-    height: 800px;
+    height: 500px;
   }
 }
 </style>

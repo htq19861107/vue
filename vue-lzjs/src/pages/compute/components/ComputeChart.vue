@@ -9,22 +9,20 @@
       id="histogramChart"    
     >
     </div>
-    <div
-      class="arrayChart"
-      id="arrayChart"    
-    >
-    </div>
+    <computeArrayChart />
   </div>
 </template>
 
 <script>
 import { reactive, onMounted } from "vue";
 import * as echarts from "echarts";
-import circlebg from '../../../assets/circle-bg.svg'
+import circlebg from '../../../assets/circle-background.svg'
+import circleblink from '../../../assets/circle-highlight.svg'
 // 如果是vue3非setup情况，还需要注册
-
+import ComputeArrayChart from "./ComputeArrayChart";
 export default {
   name: "computeChart",
+  components: {ComputeArrayChart},
   setup() {
     const stateDensityChart = reactive({
       option: {
@@ -158,47 +156,16 @@ export default {
     let data = [];
   
     let _circlebg = 'image://'+circlebg;
-    for (let y = 0; y < 5; y++) {
+    for (let y = 0; y < 10; y++) {
       yData.push(y);
-      for (let x = 0; x < 5; x++) {
-        data.push([x, y, 5]);
+      for (let x = 0; x < 10; x++) {
+        data.push([x, y, 10]);
       }
     }
-    for (let x = 0; x < 5; x++) {
+    for (let x = 0; x < 10; x++) {
       xData.push(x);
     }
-    const stateArrayChart = reactive({
-      option: {
-        grid: {
-          left: 0,
-          right: 0,
-          top: 0,
-          bottom: 0,
-        },
-        xAxis: {
-          show: false,
-          type: "category",
-          data: xData,
-        },
-        yAxis: {
-          show: false,
-          type: "category",
-          data: yData,
-        },
-        series: [
-          {
-            type: "scatter",
-            data: data,
-            
-            symbol: _circlebg,
-            symbolKeepAspect: true,
-            universalTransition: true,
-            symbolSize: 80,
-            
-          },
-        ],
-      },
-    });
+
     const initeCharts = () => {
       let densityChart = echarts.init(document.getElementById("densityChart"));
       // 绘制图表
@@ -208,11 +175,6 @@ export default {
         document.getElementById("histogramChart")
       );
       histogramChart.setOption(stateHistogramChart.option);
-
-      let arrayChart = echarts.init(
-        document.getElementById("arrayChart")
-      );
-      arrayChart.setOption(stateArrayChart.option);
     };
 
 
@@ -222,7 +184,6 @@ export default {
     return {
       stateDensityChart,
       stateHistogramChart,
-      stateArrayChart,
       initeCharts,
     };
   },
@@ -234,28 +195,17 @@ export default {
   position: absolute;
   left: 50px;
   top: 700px;
-
   .densityChart {
     position: relative;
-    left:100px;
+    left:50px;
     top:100px;
-
     width:400px;
     height: 400px;
   }
   .histogramChart {
     position: relative;
-    left:600px;
+    left:450px;
     top:-300px;
-
-    width:400px;
-    height: 400px;
-  }
-  .arrayChart{
-    position: relative;
-    left:900px;
-    top:-300px;
-
     width:400px;
     height: 400px;
   }

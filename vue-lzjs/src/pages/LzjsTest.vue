@@ -8,8 +8,10 @@
 <script>
 import { reactive, onMounted } from "vue";
 import * as echarts from "echarts";
-import h from '../assets/gate/H.png'
-import circlebg from '../assets/circle-bg.svg'
+import h from "../assets/gate/H.png";
+import circlebg from "../assets/circle-background.svg";
+import circleblink from '../assets/circle-highlight.svg'
+import circlered from '../assets/circle-red.svg'
 // 如果是vue3非setup情况，还需要注册
 
 export default {
@@ -18,61 +20,105 @@ export default {
     let xData = [];
     let yData = [];
     let data = [];
-    let _h = 'image://'+h;
-    let _circlebg = 'image://'+circlebg;
+    let data1 = [];
+    let databg = [];
+    let databg1 = [];
     for (let y = 0; y < 5; y++) {
       yData.push(y);
       for (let x = 0; x < 5; x++) {
-        data.push([x, y, 5]);
+        for (let x = 0; x < 5; x++) {
+          databg.push([x, y, 5]);
+      }
+      }
+    }
+    let _circleblink = "image://" + circleblink;
+    let _circlebg = "image://" + circlebg;
+    let _circlered = "image://" + circlered;
+    for (let y = 0; y < 5; y++) {
+      yData.push(y);
+      for (let x = 0; x < 5; x++) {
+        if (x === 1) {
+          data1.push([x, y, 5]);
+        } else {
+          data.push([x, y, 5]);
+        }
       }
     }
     for (let x = 0; x < 5; x++) {
       xData.push(x);
     }
     const stateHistogramChart = reactive({
-      option: {
-        grid: {
-          left: 0,
-          right: 0,
-          top: 0,
-          bottom: 0,
-        },
-        xAxis: {
-          show: false,
-          type: "category",
-          data: xData,
-        },
-        yAxis: {
-          show: false,
-          type: "category",
-          data: yData,
-        },
-        series: [
-          {
-            type: "scatter",
-            data: data,
-            
-            symbol: _circlebg,
-            symbolKeepAspect: true,
-            universalTransition: true,
-            symbolSize: 80,
-            
+      option: [
+        {
+          grid: {
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
           },
-        ],
-      },
+          xAxis: {
+            show: false,
+            type: "category",
+            data: xData,
+          },
+          yAxis: {
+            show: false,
+            type: "category",
+            data: yData,
+          },
+          series: [
+            {
+              type: "scatter",
+              data: data,
+              symbol: _circlebg,
+              symbolKeepAspect: true,
+              universalTransition: false,
+              symbolSize: 32,
+            },
+            {
+              type: "scatter",
+              data: data1,
+              symbol: _circleblink,
+              symbolKeepAspect: true,
+              universalTransition: false,
+              symbolSize: 32,
+            },
+          ],
+        },
+        {
+          series: [
+            {
+              data: databg,
+              symbol: _circlered,
+            },
+          ],
+        },
+      ],
     });
     const initeCharts = () => {
       let histogramChart = echarts.init(
         document.getElementById("histogramChart")
       );
-      histogramChart.setOption(stateHistogramChart.option);
+     
+      let optionIndex = 0;
+      let bSwitch =false;
+      //let option = stateHistogramChart[optionIndex];
+      //histogramChart.setOption(stateHistogramChart.option[0]);
+      setInterval(function () {
+        if(bSwitch){
+          histogramChart.setOption(stateHistogramChart.option[0]);
+        }else{
+          histogramChart.setOption(stateHistogramChart.option[1]);
+        }
+        bSwitch = !bSwitch;
+        //histogramChart.setOption(stateHistogramChart.option[0]);
+      }, 600);
     };
 
     onMounted(() => {
       initeCharts();
     });
     return {
-
       stateHistogramChart,
       initeCharts,
     };

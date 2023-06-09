@@ -19,7 +19,7 @@
       </span>
       <div class="computebg">
         <ul>
-          <li v-for="(item, indexCol) in Qubits" :key="indexCol">
+          <li v-for="(item, indexCol) in QubitsLineDepth" :key="indexCol">
             <div class="panelTitle">{{ indexCol }}</div>
           </li>
         </ul>
@@ -32,7 +32,7 @@
             class="qubitNum"
             @mouseenter="mouseEnter(indexRow)"
             @mouseleave="mouseLeave(indexRow)"
-            >Q0</span
+            >Q{{ indexRow }}</span
           >
 
           <el-icon @click="clickRemove(indexRow)"><Remove /></el-icon>
@@ -57,11 +57,14 @@
 </template>
 
 <script>
-import { reactive } from "vue";
+import { reactive,onMounted } from "vue";
+import { useStore } from 'vuex'
 export default {
   name: "computePanel",
   setup() {
-    const Qubits = 100;
+    const Qubits = 5;
+    const QubitsLineDepth = 100;
+    const store = useStore()
     const imglist = reactive([
       {
         name: "H",
@@ -84,96 +87,33 @@ export default {
         tooltip: "Z",
       },
     ]);
-    let bglist = reactive([
-      [
-        {
-          row: 0,
-          col: 0,
-          url: require("../../../assets/svg/Line.svg"),
-          drag: false,
-        },
-        {
-          row: 0,
-          col: 1,
-          url: require("../../../assets/svg/Line.svg"),
-          drag: false,
-        },
-        {
-          row: 0,
-          col: 2,
-          url: require("../../../assets/svg/Line.svg"),
-          drag: false,
-        },
-        {
-          row: 0,
-          col: 3,
-          url: require("../../../assets/svg/Line.svg"),
-          drag: false,
-        },
-        {
-          row: 0,
-          col: 4,
-          url: require("../../../assets/svg/Line.svg"),
-          drag: false,
-        },
-        {
-          row: 0,
-          col: 5,
-          url: require("../../../assets/svg/Line.svg"),
-          drag: false,
-        },
-      ],
-      [
-        {
-          row: 1,
-          col: 0,
-          url: require("../../../assets/svg/Line.svg"),
-          drag: false,
-        },
-        {
-          row: 1,
-          col: 1,
-          url: require("../../../assets/svg/Line.svg"),
-          drag: false,
-        },
-        {
-          row: 1,
-          col: 2,
-          url: require("../../../assets/svg/Line.svg"),
-          drag: false,
-        },
-        {
-          row: 1,
-          col: 3,
-          url: require("../../../assets/svg/Line.svg"),
-          drag: false,
-        },
-        {
-          row: 1,
-          col: 4,
-          url: require("../../../assets/svg/Line.svg"),
-          drag: false,
-        },
-        {
-          row: 1,
-          col: 5,
-          url: require("../../../assets/svg/Line.svg"),
-          drag: false,
-        },
-        {
-          row: 1,
-          col: 6,
-          url: require("../../../assets/svg/Line.svg"),
-          drag: false,
-        },
-      ],
-    ]);
-
+    let bglist = reactive([]);
+    let qubitsArray = [];
     let startDataUrl = "";
     let endDataUrl = "";
     let startData = null;
     let endData = null;
-
+    const initBglist = () => {
+      for (let row = 0; row < Qubits; row++) {
+        let imgRow = [];
+        for (let col = 0; col < QubitsLineDepth; col++) {
+          imgRow.push({
+            nRow: row,
+            nCol: col,
+            url: require("../../../assets/svg/Line.svg"),
+          });
+        }
+        if(imgRow.length > 0){
+          bglist.push(imgRow);
+        }   
+      }
+    };
+    const initQubitsArray = () => {
+      for (let row = 0; row < Qubits; row++) {
+        let Row = [];
+        qubitsArray.push(Row);
+      }
+    }
     const dragStart = (value) => {
       startData = value;
     };
@@ -211,7 +151,7 @@ export default {
     const clickAdd = () => {
       const nlen = bglist.length;
       let bgCol = [];
-      for(let iCol =0;iCol < Qubits;iCol++){
+      for(let iCol =0;iCol < QubitsLineDepth;iCol++){
         let objBg = {};
         objBg.row = nlen;
         objBg.col = iCol;
@@ -221,6 +161,11 @@ export default {
       }
       bglist.push(bgCol)
     };
+    onMounted(() => {
+      initBglist();
+      initQubitsArray(); 
+      store.commit('INITqubitsArray', {qubitsArray})
+    });
     return {
       dragStart,
       dragEnter,
@@ -231,6 +176,8 @@ export default {
       clickRemove,
       clickAdd,
       Qubits,
+      QubitsLineDepth,
+      qubitsArray,
       imglist,
       bglist,
     };

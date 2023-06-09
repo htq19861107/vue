@@ -4,6 +4,7 @@
   <computePanel />
   <computeChart />
   <computeCompiler />
+
 </template>
 
 <script>
@@ -12,6 +13,7 @@ import computeTitle from "./components/ComputeTitle";
 import computePanel from "./components/ComputePanel";
 import computeChart from './components/ComputeChart';
 import computeCompiler from './components/ComputeCompiler';
+
 
 // 如果是vue3非setup情况，还需要注册
 
