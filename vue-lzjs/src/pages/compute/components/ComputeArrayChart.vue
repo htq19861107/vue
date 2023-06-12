@@ -1,9 +1,12 @@
 <template>
   <div class="arrayChart">
-    <div class="imgbg" v-for="(itemRow, index) in imglist" :key="index">
-      <span v-for="(item, index) in itemRow" :key="index"
-        ><img :src="item.url"
-      /></span>
+    <div class="arrayChartTitle">阵列图</div>
+    <div class="arraybg">
+      <div class="imgbg" v-for="(itemRow, index) in imglist" :key="index">
+        <span class="imgbody" v-for="(item, index) in itemRow" :key="index"
+          ><img :src="item.url"
+        /></span>
+      </div>
     </div>
   </div>
 </template>
@@ -12,7 +15,7 @@
 // 如果是vue3非setup情况，还需要注册
 import { onMounted, reactive } from "vue";
 
-import {initParam} from '../../../config/baseConfig'
+import { initParam } from "../../../config/baseConfig";
 export default {
   name: "computeArrayChart",
   setup() {
@@ -32,12 +35,9 @@ export default {
         imglist.push(imgRow);
       }
     };
-    // const updateChart = computed(() => {
-    //   const qubitsArray = store.state.quantumData.qubitsArray
-    //   initChart(qubitsArray.length,qubitsArray.length)
-    // })
+
     onMounted(() => {
-      initChart(Qubits,QubitsLineDepth);
+      initChart(Qubits, QubitsLineDepth);
       let flag = false;
       setInterval(() => {
         if (flag) {
@@ -56,13 +56,17 @@ export default {
 
 <style lang="scss" scoped>
 .arrayChart {
-  left: 100px;
+  position: absolute;
+  left: 600px;
   top: 100px;
-  width: 400px;
-  height: 400px;
-  white-space: nowrap;
-  overflow-x:scroll;
-  overflow-y:scroll;
+  .arraybg {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    white-space: nowrap;
+    overflow-x: scroll;
+    overflow-y: scroll;
 
+  }
 }
 </style>

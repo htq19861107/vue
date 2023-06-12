@@ -100,7 +100,7 @@ export default {
         document.getElementById("histogramChart")
       );
      
-      let optionIndex = 0;
+     
       let bSwitch =false;
       //let option = stateHistogramChart[optionIndex];
       //histogramChart.setOption(stateHistogramChart.option[0]);

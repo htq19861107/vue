@@ -48,7 +48,6 @@
           >
             <img :src="item.url" />
           </span>
-          
         </div>
         <el-icon @click="clickAdd()"><CirclePlus /></el-icon>
       </div>
@@ -57,15 +56,15 @@
 </template>
 
 <script>
-import { reactive,onMounted } from "vue";
-import { useStore } from 'vuex'
-import {imgGate,initParam} from '../../../config/baseConfig'
+import { reactive, onMounted } from "vue";
+import { useStore } from "vuex";
+import { imgGate, initParam } from "../../../config/baseConfig";
 export default {
   name: "computePanel",
   setup() {
     const Qubits = initParam.computePanel.Qubits;
     const QubitsLineDepth = initParam.computePanel.QubitsLineDepth;
-    const store = useStore()
+    const store = useStore();
     const imglist = reactive(imgGate);
     let bglist = reactive([]);
     let qubitsArray = [];
@@ -78,14 +77,15 @@ export default {
         let imgRow = [];
         for (let col = 0; col < QubitsLineDepth; col++) {
           imgRow.push({
-            nRow: row,
-            nCol: col,
+            row: row,
+            col: col,
+            drag: false,
             url: require("../../../assets/svg/Line.svg"),
           });
         }
-        if(imgRow.length > 0){
+        if (imgRow.length > 0) {
           bglist.push(imgRow);
-        }   
+        }
       }
     };
     const initQubitsArray = () => {
@@ -93,7 +93,7 @@ export default {
         let Row = [];
         qubitsArray.push(Row);
       }
-    }
+    };
     const dragStart = (value) => {
       startData = value;
     };
@@ -109,7 +109,7 @@ export default {
     const dragEnd = (item) => {
       startDataUrl = startData.url;
       endDataUrl = endData.url;
-
+      console.log(endData);
       bglist[endData.row][endData.col].url = startDataUrl;
       bglist[endData.row][endData.col].drag = true;
 
@@ -121,34 +121,32 @@ export default {
     const mouseEnter = () => {};
     const mouseLeave = () => {};
     const clickRemove = (index) => {
-      for (let iRow = 0;iRow < bglist.length;iRow++ ) {
-        if(iRow >= index){
-          bglist[iRow] = bglist[iRow + 1];
-        }
-        bglist.pop();
+      if (index > -1) {
+        bglist.splice(index, 1);
       }
-      
-      store.commit('REMOVEqubitsArray', {index})   
+      store.commit("REMOVEqubitsArray", { index });
     };
     const clickAdd = () => {
       const nlen = bglist.length;
       let bgCol = [];
-      for(let iCol =0;iCol < QubitsLineDepth;iCol++){
-        let objBg = {};
-        objBg.row = nlen;
-        objBg.col = iCol;
-        objBg.url = require("../../../assets/svg/Line.svg");
-        objBg.drag = false;
+      for (let iCol = 0; iCol < QubitsLineDepth; iCol++) {
+        let objBg = {
+          row: nlen,
+          col: iCol,
+          url: require("../../../assets/svg/Line.svg"),
+          drag: false,
+        };
+
         bgCol.push(objBg);
       }
-      bglist.push(bgCol)
+      bglist.push(bgCol);
       let rowData = [];
-      store.commit('ADDqubitsArray', {rowData})
+      store.commit("ADDqubitsArray", { rowData });
     };
     onMounted(() => {
       initBglist();
-      initQubitsArray(); 
-      store.commit('INITqubitsArray', {qubitsArray})
+      initQubitsArray();
+      store.commit("INITqubitsArray", { qubitsArray });
     });
     return {
       dragStart,
@@ -194,9 +192,9 @@ export default {
       }
     }
     .computebg {
-      width:1200px;
-      overflow-x:scroll;
-      overflow-y:hidden;
+      width: 1200px;
+      overflow-x: scroll;
+      overflow-y: hidden;
       .panelTitle {
         position: relative;
         left: 0px;
