@@ -186,7 +186,7 @@ export default {
         li {
           position: relative;
           display: inline-block;
-          padding-left: 10px;
+          padding-left: 15px;
           pointer-events: none;
         }
       }
@@ -220,8 +220,10 @@ export default {
       .svgrow {
         white-space: nowrap;
         .qubitNum {
-          left: 0;
+          text-align: center;
           right: 0;
+          bottom: 10px;
+
           margin-left: 0;
           margin-right: 0;
           width: auto;
@@ -230,7 +232,7 @@ export default {
           width: 32px;
           height: 32px;
           img {
-            margin: 0 30px 0 0;
+            margin: 0 0px 0 0;
           }
         }
       }

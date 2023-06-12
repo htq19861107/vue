@@ -14,13 +14,13 @@
 <script>
 // 如果是vue3非setup情况，还需要注册
 import { onMounted, reactive } from "vue";
-
 import { initParam } from "../../../config/baseConfig";
 export default {
   name: "computeArrayChart",
   setup() {
     const Qubits = initParam.computeArrayChart.Qubits;
     const QubitsLineDepth = initParam.computeArrayChart.QubitsLineDepth;
+    const computeArrayChart = initParam.computeArrayChart;
     let imglist = reactive([]);
     const initChart = (nRwo, nCol) => {
       for (let col = 0; col < nCol; col++) {
@@ -29,7 +29,7 @@ export default {
           imgRow.push({
             nRow: row,
             nCol: col,
-            url: require("../../../assets/circle-red.svg"),
+            url: computeArrayChart.CircleBg,
           });
         }
         imglist.push(imgRow);
@@ -41,9 +41,9 @@ export default {
       let flag = false;
       setInterval(() => {
         if (flag) {
-          imglist[0][1].url = require("../../../assets/circle-red.svg");
+          imglist[0][1].url = computeArrayChart.CircleBlue;
         } else {
-          imglist[0][1].url = require("../../../assets/circle-background.svg");
+          imglist[0][1].url = computeArrayChart.CircleBg;
         }
         flag = !flag;
       }, "900");

@@ -15,7 +15,7 @@ export default createStore({
         lineDepth:0,
         qubitsArray:[],
     },
-    code:'OPENQASM 2.0;\ninclude \"qelib1.inc\";\n'   
+    code:'OPENQASM 2.0;\ninclude "qelib1.inc";\n'   
 
   },
  
