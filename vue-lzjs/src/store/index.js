@@ -14,7 +14,9 @@ export default createStore({
         qubits:0,
         lineDepth:0,
         qubitsArray:[],
-    }   
+    },
+    code:'OPENQASM 2.0;\ninclude \"qelib1.inc\";\n'   
+
   },
  
   // 2、 需要通过计算获取state里的内容获取的数据

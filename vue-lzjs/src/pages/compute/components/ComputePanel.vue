@@ -192,9 +192,10 @@ export default {
       }
     }
     .computebg {
-      width: 1200px;
+      width: 1100px;
+      height: 400px;
       overflow-x: scroll;
-      overflow-y: hidden;
+      overflow-x: scroll;
       .panelTitle {
         position: relative;
         left: 0px;
