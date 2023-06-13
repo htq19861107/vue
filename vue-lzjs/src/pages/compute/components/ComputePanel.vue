@@ -34,7 +34,6 @@
             @mouseleave="mouseLeave(indexRow)"
             >Q{{ indexRow }}</span
           >
-
           <el-icon @click="clickRemove(indexRow)"><Remove /></el-icon>
           <span
             class="svgbg"
@@ -61,8 +60,7 @@ import { imgGate, initParam } from "../../../config/baseConfig";
 export default {
   name: "computePanel",
   setup() {
-    const Qubits = initParam.computePanel.Qubits;
-    const QubitsLineDepth = initParam.computePanel.QubitsLineDepth;
+    const {Qubits,QubitsLineDepth,LineBg} = initParam.computePanel;
     const store = useStore();
     const imglist = reactive(imgGate);
     let bglist = reactive([]);
@@ -79,7 +77,7 @@ export default {
             row: row,
             col: col,
             drag: false,
-            url: require("../../../assets/svg/Line.svg"),
+            url: LineBg,
           });
         }
         if (imgRow.length > 0) {
@@ -95,7 +93,6 @@ export default {
     };
     const dragStart = (value) => {
       startData = value;
-      console.log(startData)
     };
 
     const dragOver = (value,e) => {
@@ -107,8 +104,7 @@ export default {
       if (item != null) {
         startDataUrl = startData.url;
         endDataUrl = endData.url;
-        console.log(endData);
-        const bDrag = item.drag
+        const bDrag = startData.drag
         bglist[endData.row][endData.col].url = startDataUrl;
         bglist[endData.row][endData.col].drag = true;
         if (bDrag) {
@@ -133,10 +129,9 @@ export default {
         let objBg = {
           row: nlen,
           col: iCol,
-          url: require("../../../assets/svg/Line.svg"),
+          url: LineBg,
           drag: false,
         };
-
         bgCol.push(objBg);
       }
       bglist.push(bgCol);
@@ -172,7 +167,6 @@ export default {
   left: 10px;
   top: 150px;
   width: 100%;
-
   .dragicon {
     .quantumGates {
       ul {
@@ -181,7 +175,6 @@ export default {
         top: 0px;
         list-style-type: none;
         display: block;
-
         li {
           position: relative;
           display: inline-block;
@@ -215,7 +208,6 @@ export default {
           display: inline-block;
         }
       }
-
       .svgrow {
         white-space: nowrap;
         .qubitNum {

@@ -65,7 +65,6 @@ export default {
       router.push("./lzjslogin");
     };
     const toUrl = (param) => {
-      console.log(param);
       router.push(param);
     };
     return {
