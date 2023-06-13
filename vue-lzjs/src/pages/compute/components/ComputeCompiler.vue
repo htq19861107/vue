@@ -19,7 +19,8 @@ export default {
   setup() {
     const store = useStore();
     let codeContent = computed(() => {
-      return store.state.code;
+      console.log(store.state.codeQreg)
+      return store.state.codeTitle + store.state.codeQreg;
     });
 
 

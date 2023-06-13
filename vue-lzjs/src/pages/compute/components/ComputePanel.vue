@@ -7,7 +7,7 @@
             :src="item.url"
             :draggable="true"
             @dragstart="dragStart(item)"
-            @dragend="dragEnd(item)"
+            @drop="dragDrop(item,$event)"
           />
           <span>鼠标悬浮时显示提示</span>
           <template v-slot:content>
@@ -42,9 +42,8 @@
             :key="indexCol"
             :draggable="true"
             @dragstart="dragStart(item)"
-            @dragenter="dragEnter(item, $event)"
-            @dragover="dragOver($event)"
-            @dragend="dragEnd(item)"
+            @dragover="dragOver(item,$event)"
+            @drop="dragDrop(item,$event)"
           >
             <img :src="item.url" />
           </span>
@@ -96,27 +95,28 @@ export default {
     };
     const dragStart = (value) => {
       startData = value;
+      console.log(startData)
     };
-    const dragEnter = (value, e) => {
+
+    const dragOver = (value,e) => {
       endData = value;
       e.preventDefault();
     };
 
-    const dragOver = (e) => {
-      e.preventDefault();
-    };
-
-    const dragEnd = (item) => {
-      startDataUrl = startData.url;
-      endDataUrl = endData.url;
-      console.log(endData);
-      bglist[endData.row][endData.col].url = startDataUrl;
-      bglist[endData.row][endData.col].drag = true;
-
-      if (item.drag) {
-        bglist[startData.row][startData.col].url = endDataUrl;
-        bglist[startData.row][startData.col].drag = endData.drag;
+    const dragDrop = (item,e) => {
+      if (item != null) {
+        startDataUrl = startData.url;
+        endDataUrl = endData.url;
+        console.log(endData);
+        const bDrag = item.drag
+        bglist[endData.row][endData.col].url = startDataUrl;
+        bglist[endData.row][endData.col].drag = true;
+        if (bDrag) {
+          bglist[startData.row][startData.col].url = endDataUrl;
+          bglist[startData.row][startData.col].drag = endData.drag;
+        }
       }
+      e.preventDefault();
     };
     const mouseEnter = () => {};
     const mouseLeave = () => {};
@@ -150,9 +150,8 @@ export default {
     });
     return {
       dragStart,
-      dragEnter,
       dragOver,
-      dragEnd,
+      dragDrop,
       mouseEnter,
       mouseLeave,
       clickRemove,

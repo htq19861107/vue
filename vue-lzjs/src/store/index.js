@@ -15,7 +15,9 @@ export default createStore({
         lineDepth:0,
         qubitsArray:[],
     },
-    code:'OPENQASM 2.0;\ninclude "qelib1.inc";\n'   
+    codeTitle:'OPENQASM 2.0;\ninclude "qelib1.inc";\n',
+    codeQreg:'',
+    codeContent:''   
 
   },
  
@@ -33,21 +35,21 @@ export default createStore({
     INITqubitsArray(state,data){
       const { qubitsArray } = data;
       state.quantumData.qubitsArray = qubitsArray;
+      state.codeQreg = 'qreg q[' + state.quantumData.qubitsArray.length + ']';
     },
     // 增加量子比特数量
     ADDqubitsArray(state,data){
       const { rowData } = data;
       state.quantumData.qubitsArray.push(rowData);
+      state.codeQreg = 'qreg q[' + state.quantumData.qubitsArray.length + ']';
     },
     // 减少量子比特
     REMOVEqubitsArray(state,data){
       const {index} = data;
-      for (let iRow = 0;iRow < state.quantumData.qubitsArray.length;iRow++ ) {
-        if(iRow >= index){
-          state.quantumData.qubitsArray[iRow] = state.quantumData.qubitsArray[iRow + 1];
-        }
-        state.quantumData.qubitsArray.pop();
+      if (index > -1) {
+        state.quantumData.qubitsArray.splice(index, 1);
       }
+      state.codeQreg = 'qreg q[' + state.quantumData.qubitsArray.length + ']';
       //state.quantumData.qubitsArray.slice(index - 1, index);
     },
     // 改变量子比特的门
@@ -62,7 +64,7 @@ export default createStore({
     // 修改工程名称
     CHANGEprjName(state,prjName){
       state.quantumData.prjName = prjName;
-    },
+    }
   },
 
   // 3、定义对state的各种操作
