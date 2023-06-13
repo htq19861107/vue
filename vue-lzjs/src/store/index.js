@@ -35,13 +35,11 @@ export default createStore({
     INITqubitsArray(state,data){
       const { qubitsArray } = data;
       state.quantumData.qubitsArray = qubitsArray;
-      state.codeQreg = 'qreg q[' + state.quantumData.qubitsArray.length + ']';
     },
     // 增加量子比特数量
     ADDqubitsArray(state,data){
       const { rowData } = data;
       state.quantumData.qubitsArray.push(rowData);
-      state.codeQreg = 'qreg q[' + state.quantumData.qubitsArray.length + ']';
     },
     // 减少量子比特
     REMOVEqubitsArray(state,data){

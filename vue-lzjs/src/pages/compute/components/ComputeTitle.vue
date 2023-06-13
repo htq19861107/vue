@@ -58,11 +58,18 @@
       >保存</el-button
     >
     <el-button
+      class="btnClear"
+      type="primary"
+      :icon="Brush"
+      @click="clickClear"
+    >清空</el-button>
+    <el-button
       class="btnSetting"
       type="primary"
       :icon="Setting"
       @click="clickSetting"
     />
+
     <el-dialog
       v-model="dialogVisible"
       title="设置"
@@ -83,6 +90,8 @@
 </template>
 <script>
 import { ref, reactive } from "vue";
+import { useStore } from "vuex";
+import { initParam } from "../../../config/baseConfig";
 import {
   Search,
   Edit,
@@ -91,6 +100,7 @@ import {
   Setting,
   VideoPlay,
   Management,
+  Brush,
 } from "@element-plus/icons-vue";
 export default {
   name: "computeTitle",
@@ -99,7 +109,10 @@ export default {
     let curServe = ref("");
     let bDisabled = ref(true);
     let prjName = ref("");
+    let qubitsArray = [];
     let dialogVisible = ref(false);
+    const {Qubits} = initParam.computePanel;
+    const store = useStore();
     const servelist = reactive([
       {
         value: 1,
@@ -119,8 +132,11 @@ export default {
     const clickBtnOKPrjName = () => {
       rename.value = !rename.value;
       bDisabled.value = !bDisabled.value;
+      store.commit('CHANGEprjName',rename.value);
     };
-    const clickResetPrjName = () => {};
+    const clickResetPrjName = () => {
+      store.commit('CHANGEprjName','');
+    };
     const clickRun = () => {
       console.log("clickRun");
     };
@@ -130,6 +146,17 @@ export default {
     const clickSetting = () => {
       dialogVisible.value = true;
     };
+    const clickClear = () => {
+      initQubitsArray();
+      store.commit('INITqubitsArray',qubitsArray);
+      
+    }
+    const initQubitsArray = () => {
+      for (let row = 0; row < Qubits; row++) {
+        let Row = [];
+        qubitsArray.push(Row);
+      }
+    };
     return {
       prjName,
       rename,
@@ -137,12 +164,14 @@ export default {
       dialogVisible,
       curServe,
       servelist,
+      qubitsArray,
       clickModifyPrjName,
       clickBtnOKPrjName,
       clickResetPrjName,
       clickRun,
       clickSave,
       clickSetting,
+      clickClear,
       Search,
       Edit,
       Select,
@@ -150,6 +179,7 @@ export default {
       Setting,
       VideoPlay,
       Management,
+      Brush
     };
   },
 };
@@ -191,9 +221,13 @@ export default {
     position: absolute;
     left: 800px;
   }
-  .btnSetting {
+  .btnClear{
     position: absolute;
     left: 900px;
+  }
+  .btnSetting {
+    position: absolute;
+    left: 1000px;
   }
 }
 </style>

@@ -4,7 +4,7 @@
     <textarea
       class="codeFile"
       :placeholder="placeholder"
-      v-model="codeContent"
+      v-model="codeText"
       readonly
     ></textarea>
   </div>
@@ -18,22 +18,13 @@ export default {
 
   setup() {
     const store = useStore();
-    let codeContent = computed(() => {
-      console.log(store.state.codeQreg)
-      return store.state.codeTitle + store.state.codeQreg;
+    let codeText = computed(() => {
+      return store.state.codeTitle + store.state.codeQreg + store.state.codeContent;
     });
-
-
-    const initCode = () => {
- 
-    };
 
     onMounted(() => {
-      initCode();
-      console.log('codeContent*******************')
-      console.log(codeContent)
     });
-    return { codeContent };
+    return { codeText };
   },
 };
 </script>
