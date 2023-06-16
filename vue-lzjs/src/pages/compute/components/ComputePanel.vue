@@ -155,15 +155,17 @@ export default {
       if('click' in value && value.click){
         value.url = SolidCircle
         for(let row = 0;row < bglist.length;row++){
-          if(row !== value.row && 'control' in bglist[row][value.col]){
-            bglist[row][value.col].control -= nContr;
+          if('control' in bglist[row][value.col]){
+            bglist[row][value.col].control = nContr - 1;
           }
         }
         //value.control -= value.control;
         value.click = false;
       }
+      console.log('value************************')
+      console.log(value.control)
       // console.log(value.control)
-      if(nContr === 0){
+      if(value.control === 0){
         for(let row = 0;row < bglist.length;row++){
           if(value.row !== row && bglist[row][value.col].url === HollowCircle){
             bglist[row][value.col].url = LineBg;
