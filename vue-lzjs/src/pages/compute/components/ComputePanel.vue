@@ -43,6 +43,7 @@
             @dragstart="dragStart(item)"
             @dragover="dragOver(item,$event)"
             @drop="dragDrop(item,$event)"
+            @click="SetControlGate(item)"
           >
             <img :src="item.url" />
           </span>
@@ -60,7 +61,7 @@ import { imgGate, initParam } from "../../../config/baseConfig";
 export default {
   name: "computePanel",
   setup() {
-    const {Qubits,QubitsLineDepth,LineBg} = initParam.computePanel;
+    const {Qubits,QubitsLineDepth,LineBg,HollowCircle,SolidCircle} = initParam.computePanel;
     const store = useStore();
     const imglist = reactive(imgGate);
     let bglist = reactive([]);
@@ -78,6 +79,7 @@ export default {
             col: col,
             drag: false,
             url: LineBg,
+            click:false,
           });
         }
         if (imgRow.length > 0) {
@@ -111,6 +113,15 @@ export default {
           bglist[startData.row][startData.col].url = endDataUrl;
           bglist[startData.row][startData.col].drag = endData.drag;
         }
+        if('control' in startData){
+          for(let row =0;row < bglist.length;row++){
+            if(endData.row !== row){
+              bglist[row][endData.col].url = HollowCircle;
+              bglist[row][endData.col].click = true;
+              bglist[row][endData.col].control = startData.control;
+            }
+          }
+        }
       }
       e.preventDefault();
     };
@@ -138,6 +149,29 @@ export default {
       let rowData = [];
       store.commit("ADDqubitsArray", { rowData });
     };
+    const SetControlGate = (value) => { 
+      const nContr = value.control;
+      console.log(value.control)
+      if('click' in value && value.click){
+        value.url = SolidCircle
+        for(let row = 0;row < bglist.length;row++){
+          if(row !== value.row && 'control' in bglist[row][value.col]){
+            bglist[row][value.col].control -= nContr;
+          }
+        }
+        //value.control -= value.control;
+        value.click = false;
+      }
+      // console.log(value.control)
+      if(nContr === 0){
+        for(let row = 0;row < bglist.length;row++){
+          if(value.row !== row && bglist[row][value.col].url === HollowCircle){
+            bglist[row][value.col].url = LineBg;
+            bglist[row][value.col].click = false;
+          }
+        }
+      }
+    }
     onMounted(() => {
       initBglist();
       initQubitsArray();
@@ -151,6 +185,7 @@ export default {
       mouseLeave,
       clickRemove,
       clickAdd,
+      SetControlGate,
       Qubits,
       QubitsLineDepth,
       qubitsArray,

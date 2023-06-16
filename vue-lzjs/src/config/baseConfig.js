@@ -83,36 +83,43 @@ export const imgGate = [
       name: "CNOT",
       url: require("../assets/gate/CNOT.png"),
       tooltip: "CNOT",
+      control:1
     },
     {
       name: "ISWAP",
       url: require("../assets/gate/ISWAP.png"),
       tooltip: "ISWAP",
+      control:1
     },
     {
       name: "SQISWAP",
       url: require("../assets/gate/SQISWAP.png"),
       tooltip: "SQISWAP",
+      control:1
     },
     {
       name: "SWAP",
       url: require("../assets/gate/SWAP.png"),
       tooltip: "SWAP",
+      control:1
     },
     {
       name: "TOFFOLI",
       url: require("../assets/gate/TOFFOLI.png"),
       tooltip: "TOFFOLI",
+      control:2
     },
     {
       name: "CR",
       url: require("../assets/gate/CR.png"),
       tooltip: "CR",
+      control:1
     },
     {
       name: "CZ",
       url: require("../assets/gate/CZ.png"),
       tooltip: "CZ",
+      control:1
     },
     {
       name: "MESEAGE",
@@ -166,6 +173,8 @@ export const initParam = {
         Qubits:5,
         QubitsLineDepth:100,
         LineBg:require("../assets/svg/Line.svg"),
+        HollowCircle:require("../assets/svg/HollowCircle.svg"),
+        SolidCircle:require("../assets/svg/SolidCircle.svg")
     },
     computeArrayChart:{
         Qubits:15,
