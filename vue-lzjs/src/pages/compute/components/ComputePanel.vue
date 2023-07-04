@@ -43,12 +43,19 @@
             @dragstart="dragStart(item)"
             @dragover="dragOver(item,$event)"
             @drop="dragDrop(item,$event)"
-            @click="SetControlGate(item)"
+            @click="judgClick(item)"
           >
             <img :src="item.url" />
           </span>
         </div>
         <el-icon @click="clickAdd()"><CirclePlus /></el-icon>
+      </div>
+      <div class="paramSet" v-show="paramShow">参数设置
+        <el-input
+      class="param1"
+      size="default"
+      placeholder="Untitled Project"
+    />
       </div>
     </transition-group>
   </div>
@@ -70,6 +77,8 @@ export default {
     let endDataUrl = "";
     let startData = null;
     let endData = null;
+    let clickStatus = 0;
+    let paramShow = false;
     const initBglist = () => {
       for (let row = 0; row < Qubits; row++) {
         let imgRow = [];
@@ -106,7 +115,10 @@ export default {
       if (item != null) {
         startDataUrl = startData.url;
         endDataUrl = endData.url;
-        const bDrag = startData.drag
+        const bDrag = startData.drag;
+        if('paramSet' in startData){
+          bglist[endData.row][endData.col].paramSet = startData.paramSet;
+        }
         bglist[endData.row][endData.col].url = startDataUrl;
         bglist[endData.row][endData.col].drag = true;
         if (bDrag) {
@@ -149,6 +161,17 @@ export default {
       let rowData = [];
       store.commit("ADDqubitsArray", { rowData });
     };
+    const showFloatParamSet = ()=>{
+      paramShow = true;
+    };
+    const judgClick = (item)=>{
+      if(0 === clickStatus){
+        showFloatParamSet();
+      }
+      else{
+        SetControlGate(item);
+      }
+    };
     const SetControlGate = (value) => { 
       const nContr = value.control;
       console.log(value.control)
@@ -159,12 +182,8 @@ export default {
             bglist[row][value.col].control = nContr - 1;
           }
         }
-        //value.control -= value.control;
         value.click = false;
       }
-      console.log('value************************')
-      console.log(value.control)
-      // console.log(value.control)
       if(value.control === 0){
         for(let row = 0;row < bglist.length;row++){
           if(value.row !== row && bglist[row][value.col].url === HollowCircle){
@@ -180,6 +199,7 @@ export default {
       store.commit("INITqubitsArray", { qubitsArray });
     });
     return {
+      clickStatus,
       dragStart,
       dragOver,
       dragDrop,
@@ -188,11 +208,13 @@ export default {
       clickRemove,
       clickAdd,
       SetControlGate,
+      judgClick,
       Qubits,
       QubitsLineDepth,
       qubitsArray,
       imglist,
       bglist,
+      paramShow,
     };
   },
 };

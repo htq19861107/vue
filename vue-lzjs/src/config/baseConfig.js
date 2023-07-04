@@ -48,21 +48,25 @@ export const imgGate = [
       name: "U1",
       url: require("../assets/gate/U1.png"),
       tooltip: "U1",
+      paramSet:true,
     },
     {
       name: "U2",
       url: require("../assets/gate/U2.png"),
       tooltip: "U2",
+      paramSet:true,
     },
     {
       name: "U3",
       url: require("../assets/gate/U3.png"),
       tooltip: "U3",
+      paramSet:true,
     },
     {
       name: "U4",
       url: require("../assets/gate/U4.png"),
       tooltip: "U4",
+      paramSet:true,
     },
     {
       name: "RX",
