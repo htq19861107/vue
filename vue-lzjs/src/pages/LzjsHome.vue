@@ -1,18 +1,5 @@
 <template>
   <lzjsheader />
-  <div class="app-container">
-    <div>
-      <el-tooltip content="提示内容">
-        <span>鼠标悬浮时显示提示</span>
-        <template v-slot:content>
-          <div class="tooltip-content">
-            <p>这是提示内容1</p>
-            <p>这是提示内容2</p>
-          </div>
-        </template>
-      </el-tooltip>
-    </div>
-  </div>
 </template>
 
 <script>
@@ -21,6 +8,15 @@ export default {
   components: {
     lzjsheader,
   },
+  setup(){
+    const utils = require('utility')
+    const test = ()=>{
+      utils.md5(utils.md5('pwd' + 'salt'))
+    }
+    return {
+      test
+    }
+  }
 };
 </script>
 
