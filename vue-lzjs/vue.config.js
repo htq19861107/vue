@@ -5,11 +5,7 @@ module.exports = defineConfig({
   transpileDependencies: true,
   configureWebpack: {
     resolve: {
-       fallback: { "crypto": require.resolve("crypto-browserify")  ,"path": require.resolve("path-browserify"),"stream": require.resolve("stream-browserify") ,"assert": require.resolve("assert/"),"constants": require.resolve("constants-browserify"),"fs": false},
-
-        // fallback: {
-        //     "fs": false
-        // },
+      fallback: { "crypto": require.resolve("crypto-browserify"), "path": require.resolve("path-browserify"), "stream": require.resolve("stream-browserify"), "assert": require.resolve("assert/"), "constants": require.resolve("constants-browserify"), "fs": false },
     },
     plugins: [
       new webpack.ProvidePlugin({

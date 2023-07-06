@@ -46,18 +46,13 @@
             @click="judgClick(item)"
           >
             <img :src="item.url" />
+            <computeParamSet v-if="paramShow"/>
+            <ShowMsg v-if="show" :message="toastMessage"/>
           </span>
         </div>
         <el-icon @click="clickAdd()"><CirclePlus /></el-icon>
       </div>
-      <div class="paramSet" v-show="paramShow">参数设置
-        <el-input
-      class="param1"
-      size="default"
-      placeholder="Untitled Project"
-    />
-      </div>
-    </transition-group>
+    </transition-group>  
   </div>
 </template>
 
@@ -65,9 +60,16 @@
 import { reactive, onMounted } from "vue";
 import { useStore } from "vuex";
 import { imgGate, initParam } from "../../../config/baseConfig";
+import computeParamSet from "../components/ComputeParamSet"
+import ShowMsg , { useToastEffect } from "../../../components/ShowMsg"
 export default {
   name: "computePanel",
+  components: {
+    computeParamSet,
+    ShowMsg
+  },
   setup() {
+    const { show, toastMessage,showToast } = useToastEffect()
     const {Qubits,QubitsLineDepth,LineBg,HollowCircle,SolidCircle} = initParam.computePanel;
     const store = useStore();
     const imglist = reactive(imgGate);
@@ -133,6 +135,7 @@ export default {
               bglist[row][endData.col].control = startData.control;
             }
           }
+          clickStatus = startData.control;
         }
       }
       e.preventDefault();
@@ -154,6 +157,7 @@ export default {
           col: iCol,
           url: LineBg,
           drag: false,
+          click:false,
         };
         bgCol.push(objBg);
       }
@@ -162,13 +166,22 @@ export default {
       store.commit("ADDqubitsArray", { rowData });
     };
     const showFloatParamSet = ()=>{
-      paramShow = true;
+      paramShow = !paramShow;
+    };
+    const showAlert = (item)=>{
+      //alert("message")
+      return item.click;
     };
     const judgClick = (item)=>{
+      console.log(item);
+      console.log(clickStatus)
+      showToast("item");
       if(0 === clickStatus){
+        console.log('showFloatParamSet')
         showFloatParamSet();
       }
       else{
+        console.log('SetControlGate')
         SetControlGate(item);
       }
     };
@@ -182,6 +195,7 @@ export default {
             bglist[row][value.col].control = nContr - 1;
           }
         }
+        clickStatus = clickStatus - 1;
         value.click = false;
       }
       if(value.control === 0){
@@ -209,12 +223,15 @@ export default {
       clickAdd,
       SetControlGate,
       judgClick,
+      showAlert,
       Qubits,
       QubitsLineDepth,
       qubitsArray,
       imglist,
       bglist,
       paramShow,
+      show,
+      toastMessage,
     };
   },
 };
