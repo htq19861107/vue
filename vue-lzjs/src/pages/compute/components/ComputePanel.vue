@@ -175,14 +175,17 @@ export default {
     const judgClick = (item)=>{
       console.log(item);
       console.log(clickStatus)
-      showToast("item");
+      
       if(0 === clickStatus){
-        console.log('showFloatParamSet')
         showFloatParamSet();
       }
       else{
-        console.log('SetControlGate')
-        SetControlGate(item);
+        if('control' in item){
+          SetControlGate(item);      
+        }
+        else{
+          showToast("请点击垂直方向上高亮的点");
+        }        
       }
     };
     const SetControlGate = (value) => { 

@@ -84,7 +84,7 @@ export default {
   left: 0px;
   top: 0px;
   width: 100%;
-  z-index:999;
+  z-index:10;
   background-color: #ccc;
   .nav {
   position: relative;
@@ -146,7 +146,7 @@ export default {
         border-radius: 4px;
         &:hover {
           color: #0b2be0;
-          z-index:999
+          z-index:10
         }
       }
     }

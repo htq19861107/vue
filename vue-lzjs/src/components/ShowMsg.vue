@@ -23,7 +23,7 @@ export const useToastEffect = () => {
     setTimeout(() => {
       toastData.show = false
       toastData.toastMessage = ''
-    }, 200000)
+    }, 2000)
   }
 
   const { show, toastMessage } = toRefs(toastData)
@@ -34,13 +34,14 @@ export const useToastEffect = () => {
 <style scoped>
 .alert {
     background-color: #fff;
-    color: #000;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+    color: #ad0b0b;
+    padding: 0px;
+    border-radius: 3px;
+    border: 1px solid rgb(230, 39, 13);
     position: fixed;
-    bottom: 50px;
+    top: 50px;
     left: 50%;
     transform: translateX(-50%);
+    z-index: 999;
 }
 </style>
