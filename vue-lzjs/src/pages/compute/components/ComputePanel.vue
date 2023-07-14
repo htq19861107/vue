@@ -1,6 +1,6 @@
 <template>
   <div class="contentPanel">
-    <transition-group class="dragicon" tag="ul">
+    <div class="dragicon" tag="ul" key="transition">
       <span class="quantumGates" v-for="item in imglist" :key="item">
         <el-tooltip placement="top">
           <img
@@ -52,7 +52,7 @@
         </div>
         <el-icon @click="clickAdd()"><CirclePlus /></el-icon>
       </div>
-    </transition-group>  
+    </div>  
   </div>
 </template>
 
@@ -243,9 +243,11 @@ export default {
 <style lang="scss" scoped>
 .contentPanel {
   position: absolute;
-  left: 10px;
+  left: 0px;
   top: 150px;
   width: 100%;
+  padding-left:15px;
+  box-sizing: border-box;
   .dragicon {
     .quantumGates {
       ul {
@@ -266,7 +268,8 @@ export default {
       width: 1100px;
       height: 400px;
       overflow-x: scroll;
-      overflow-x: scroll;
+      overflow-y: scroll;
+      margin-top:20px;
       .panelTitle {
         position: relative;
         left: 0px;
@@ -281,13 +284,20 @@ export default {
         list-style-type: none;
         display: block;
         white-space: nowrap;
+        padding-left: 36px;
 
         li {
+          width:32px;
+          height: 32px;
+          text-align: center;
+          line-height: 32px;
           position: relative;
           display: inline-block;
         }
       }
       .svgrow {
+        display: flex;
+        align-items: center;
         white-space: nowrap;
         .qubitNum {
           text-align: center;
@@ -297,6 +307,8 @@ export default {
           margin-left: 0;
           margin-right: 0;
           width: auto;
+          display: inline-block;
+          width: 20;
         }
         .svgbg {
           width: 32px;
