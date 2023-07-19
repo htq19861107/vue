@@ -22,7 +22,7 @@
           <el-icon @click.stop="setImgList('reduce', indexRow)">
             <Remove />
           </el-icon>
-          <span class="svgbg" v-for="(item, indexCol) in itemRow" :key="indexCol" :ref="handleRef"
+          <span class="svgbg" v-for="(item, indexCol) in itemRow" :key="indexCol" :ref="el => handleRef(el, item)"
             @dragstart="dragStart(item)" @dragover="dragOver(item, $event)" @dragend="dragend(item, $event)"
             @drop="dropInner(item)" @click="judgClick(item)" @dragleave="dragLeave(item, $event)">
             <img :src="item.url" :draggable="item.drag" />
@@ -118,7 +118,7 @@ export default {
     /**
     * 离开背景色改为白色
     */
-    const dragLeave = (value,e) => {
+    const dragLeave = (value, e) => {
       const { row, col } = value;
       drawBackgroundChange("leave", row, col, startData.up, startData.down);
       e.preventDefault();
@@ -127,6 +127,7 @@ export default {
     const spliceDoubleArr = (num, arr) => {
       let newArr = [];
       const total = Math.ceil(arr.length / 100); // 20
+      console.log('total:'+arr.length )
       for (let i = 0; i < total; i++) {
         let res = bgRef._rawValue.slice(i * 100, (i + 1) * 100);
         newArr.push(res);
@@ -196,10 +197,7 @@ export default {
       e.preventDefault();
     };
 
-    /**
-    * 判断整体是否可挪动
-    * @returns true & false
-    */
+
     /*** 背景阴影* @param { String } type access:进入 & leave:离开*/
     const drawBackgroundChange = (type, row, col, up, down) => {
       const colorMap = {
@@ -222,6 +220,8 @@ export default {
       }
 
       if (typeof (row) != "undefined" && typeof (col) != "undefined") {
+        console.log('row:'+row)
+        console.log('col:'+col)
         doubleRef._rawValue[row][col].style.background = colorMap[type];
       }
 
@@ -246,7 +246,7 @@ export default {
       }
       return isHaveEle;
     };
-    const handleRef = (el) => {
+    const handleRef = (el, item) => {
       if (el) {
         bgRef.value.push(el);
       }
@@ -268,6 +268,8 @@ export default {
           url: LineBg,
           drag: false,
           click: false,
+          up: 0,//中心点向上偏移
+          down: 0//中心点向下偏移
         };
         bgCol.push(objBg);
       }
@@ -328,9 +330,12 @@ export default {
                 col: i,
                 drag: false, // 是否为已选择的指示点
                 url: LineBg,
+                click: false,
+                up: 0,//中心点向上偏移
+                down: 0//中心点向下偏移
               });
             }
-            bgRef._rawValue = [];
+            bgRef.value = [];
             bglist.push(newImgArr);
             nextTick(() => {
               spliceDoubleArr(100, bgRef._rawValue);
@@ -343,7 +348,11 @@ export default {
             if (bglist.length <= 1) {
               return;
             }
+            bgRef.value = [];
             bglist.splice(index, 1);
+            nextTick(() => {
+              spliceDoubleArr(100, bgRef._rawValue);
+            });
           },
         ],
       ]);
