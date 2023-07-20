@@ -24,7 +24,7 @@
           </el-icon>
           <span class="svgbg" v-for="(item, indexCol) in itemRow" :key="indexCol" :ref="el => handleRef(el, item)"
             @dragstart="dragStart(item)" @dragover="dragOver(item, $event)" @dragend="dragend(item, $event)"
-            @drop="dropInner(item)" @click="judgClick(item)" @dragleave="dragLeave(item, $event)">
+            @click="judgClick(item)" @dragleave="dragLeave(item, $event)">
             <img :src="item.url" :draggable="item.drag" />
             <computeParamSet v-if="paramShow" />
             <ShowMsg v-if="show" :message="toastMessage" />
@@ -83,6 +83,7 @@ export default {
         let imgRow = [];
         for (let col = 0; col < QubitsLineDepth; col++) {
           imgRow.push({
+            id: -1,
             row: row,
             col: col,
             drag: false,
@@ -134,68 +135,157 @@ export default {
       }
       doubleRef.value = newArr;
     };
-    const setDragSrc = () => {
-      let nUp = 1
+    const clearDrc = (vaule) => {
+      if (vaule.hasOwnProperty('id')) {
+        return;
+      }
+      if (vaule.hasOwnProperty('control')) {
+        delete vaule.control;
+      }
+      if (vaule.hasOwnProperty('paramSet')) {
+        delete vaule.paramSet;
+      }
+      if (vaule.hasOwnProperty('attach')) {
+        delete vaule.attach;
+      }
+    }
+    const setDragSrc = (bMoveBack) => {
+      console.log('bMoveBack:'+bMoveBack)
 
+      let col = Number(startData.col) + Number(bMoveBack?1:0)
+      col = endData.col < startData.col ? col:--col;
+      let nUp = 1
+      console.log('col:'+col)
       while (nUp <= startData.up) {
-        bglist[startData.row - nUp][startData.col].url = LineBg;
-        bglist[startData.row - nUp][startData.col].drag = false;
+        let row = startData.row - nUp 
+        bglist[row][col].url = LineBg;
+        bglist[row][col].drag = false;
+        clearDrc(bglist[row][col])
         ++nUp;
       }
       let nDown = 1
+      console.log('startData.row:'+startData.row)
+      console.log('Math.abs(startData.down):'+Math.abs(startData.down))
+      console.log('Number(startData.row):'+Number(startData.row))
+      console.log('Number(nDown):'+Number(nDown))
+      let nss = nDown <= Math.abs(startData.down)
+      console.log('nss:'+nss)
       while (nDown <= Math.abs(startData.down) && Number(startData.row) + Number(nDown) < bglist.length) {
-        bglist[Number(startData.row) + Number(nDown)][startData.col].url = LineBg;
-        bglist[Number(startData.row) + Number(nDown)][startData.col].drag = false;
+        let row = Number(startData.row) + Number(nDown)       
+        bglist[row][col].url = LineBg;
+        bglist[row][col].drag = false;
+        clearDrc(bglist[row][col])
         ++nDown;
       }
-      bglist[startData.row][startData.col].url = LineBg;
-      bglist[startData.row][startData.col].drag = false;
-      bglist[startData.row][startData.col].up = 0;
-      bglist[startData.row][startData.col].down = 0;
+      bglist[startData.row][col].url = LineBg;
+      bglist[startData.row][col].drag = false;
+      bglist[startData.row][col].up = 0;
+      bglist[startData.row][col].down = 0;
+      clearDrc(bglist[startData.row][col])
     }
+
     const setDragDes = () => {
       bglist[endData.row][endData.col].up = startData.up;
       bglist[endData.row][endData.col].down = startData.down;
       let nUp = 1
       while (nUp <= startData.up) {
+        let row = endData.row - nUp
         if (nUp < startData.up) {
-          bglist[endData.row - nUp][endData.col].url = VerticalLine;
-          bglist[endData.row - nUp][endData.col].drag = false;
+          bglist[row][endData.col].url = VerticalLine;
+          bglist[row][endData.col].drag = false;
         }
         else {
-          bglist[endData.row - nUp][endData.col].url = SolidCircle;
-          bglist[endData.row - nUp][endData.col].drag = false;
-
+          bglist[row][endData.col].url = SolidCircle;
+          bglist[row][endData.col].drag = false;
         }
         ++nUp;
       }
       let nDown = 1
       while (nDown <= Math.abs(startData.down)) {
+        let row = Number(endData.row) + Number(nDown)
         if (nDown < Math.abs(startData.down)) {
-          bglist[Number(endData.row) + Number(nDown)][endData.col].url = VerticalLine;
-          bglist[Number(endData.row) + Number(nDown)][endData.col].drag = false;
+          bglist[row][endData.col].url = VerticalLine;
+          bglist[row][endData.col].drag = false;
         }
         else {
-          bglist[Number(endData.row) + Number(nDown)][endData.col].url = SolidCircle;
-          bglist[Number(endData.row) + Number(nDown)][endData.col].drag = false;
+          bglist[row][endData.col].url = SolidCircle;
+          bglist[row][endData.col].drag = false;
         }
         ++nDown;
       }
     }
+    const isMoveBack = (src, des) => {
+      //从最上处拖都移动
+      let bReslt = false;
+      if (!src.hasOwnProperty('id')) {
+        let row = 0
+        while (row < bglist.length) {
+          if (bglist[row][endData.col].url != LineBg) {
+            bReslt = true;
+            break;
+          }
+          ++row;
+        }
+        return bReslt;
+      }
+      //判断是否重叠
+      let nUp = 1
+      while (nUp <= startData.up) {
+        let row = endData.row - nUp
+        if (bglist[row][endData.col].url != LineBg) {
+            bReslt = true;
+            break;
+          }
+        ++nUp;
+      }
+      let nDown = 1
+      while (nDown <= Math.abs(startData.down)) {
+        let row = Number(endData.row) + Number(nDown)
+        if (bglist[row][endData.col].url != LineBg) {
+            bReslt = true;
+            break;
+          }
+        ++nDown;
+      }
+      return bReslt;
+    }
     const dragend = (item, e) => {
       let bCanMove = isCanMove(startData, endData)
-
+      let bMoveBack = isMoveBack(startData, endData)
       if (item != null && bCanMove) {
         const bDrag = startData.drag;
         if ('paramSet' in startData) {
           bglist[endData.row][endData.col].paramSet = startData.paramSet;
         }
         /*多个图片移动数据交换*/
+        if (bMoveBack) {
+          for (let row = 0; row < bglist.length; row++) {
+            let itemRow = bglist[row]
+            itemRow.pop()
+            let item = {
+              id: -1,
+              row: row,
+              col: endData.col,
+              drag: false,
+              url: LineBg,
+              click: false,
+              up: 0,//中心点向上偏移
+              down: 0//中心点向下偏移
+            }
+            itemRow.splice(endData.col, 0, item)
+            for (let col = 0; col < itemRow.length; col++) {
+              if (endData.col < col) {
+                ++itemRow[col].col
+              }
+            }
+          }
+        }
         if (bDrag) {
-          setDragSrc();
+          setDragSrc(bMoveBack);
           setDragDes();
         }
-        if ('control' in startData && startData.control > 0 ) {
+        //拖拽完为需要配置的门
+        if ('control' in startData && startData.control > 0) {
           for (let row = 0; row < bglist.length; row++) {
             if (endData.row !== row) {
               bglist[row][endData.col].url = HollowCircle;
@@ -206,7 +296,7 @@ export default {
           }
           clickStatus = startData.control;
         }
-        if ('control' in startData && startData.control > 0) {        
+        if ('control' in startData && startData.control > 0) {
           bglist[endData.row][endData.col].url = startData.url;
           bglist[endData.row][endData.col].drag = false;
         }
@@ -215,7 +305,7 @@ export default {
           bglist[endData.row][endData.col].drag = true;
         }
         /*清除背景*/
-        drawBackgroundChange("leave", endData.row, endData.col, startData.up, startData.down)
+        //drawBackgroundChange("leave", endData.row, endData.col, startData.up, startData.down)
       }
       drawBackgroundChange("leave", endData.row, endData.col, startData.up, startData.down)
       e.preventDefault();
@@ -249,20 +339,12 @@ export default {
 
 
     };
-    /*** 是否可移动*/
-    const dropInner = (val) => {
-      // 超出边界
-      isHaveEle = true;
-      if (startData.row - startData.up <= val.row && Number(startData.row) + Number(Math.abs(startData.down)) > bglist.length) {
-        isHaveEle = false;
-      }
-    };
+
     const isCanMove = (src, des) => {
       // 超出边界
       isHaveEle = true;
       if (src.hasOwnProperty('row')) {
         if (des.row - src.up < 0 || Number(des.row) + Number(Math.abs(src.down)) >= bglist.length) {
-
           isHaveEle = false;
         }
       }
@@ -285,6 +367,7 @@ export default {
       let bgCol = [];
       for (let iCol = 0; iCol < QubitsLineDepth; iCol++) {
         let objBg = {
+          id: -1,
           row: nlen,
           col: iCol,
           url: LineBg,
@@ -407,7 +490,6 @@ export default {
       dragStart,
       dragOver,
       dragend,
-      dropInner,
       dragLeave,
       clickRemove,
       clickAdd,
