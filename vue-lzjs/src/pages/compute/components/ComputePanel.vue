@@ -19,7 +19,7 @@
         </ul>
         <div class="svgrow" v-for="(itemRow, indexRow) in bglist" :key="indexRow">
           <span class="qubitNum">Q{{ indexRow }}</span>
-          <el-icon @click.stop="setImgList('reduce', indexRow)">
+          <el-icon @click.stop="changeImgList('reduce', indexRow)">
             <Remove />
           </el-icon>
           <span class="svgbg" v-for="(item, indexCol) in itemRow" :key="indexCol" :ref="el => handleRef(el, item)"
@@ -30,7 +30,7 @@
             <ShowMsg v-if="show" :message="toastMessage" />
           </span>
         </div>
-        <el-icon @click.stop="setImgList('add')">
+        <el-icon @click.stop="changeImgList('add')">
           <CirclePlus />
         </el-icon>
       </div>
@@ -52,7 +52,7 @@ export default {
   },
   setup() {
     const { show, toastMessage, showToast } = useToastEffect()
-    const { Qubits, QubitsLineDepth, LineBg, HollowCircle, SolidCircle } = initParam.computePanel;
+    const { Qubits, QubitsLineDepth, LineBg, HollowCircle, SolidCircle, VerticalLine } = initParam.computePanel;
     const store = useStore();
     const imglist = reactive(imgGate);
     let bglist = reactive([]);
@@ -127,13 +127,61 @@ export default {
     const spliceDoubleArr = (num, arr) => {
       let newArr = [];
       const total = Math.ceil(arr.length / 100); // 20
-      console.log('total:'+arr.length )
+
       for (let i = 0; i < total; i++) {
         let res = bgRef._rawValue.slice(i * 100, (i + 1) * 100);
         newArr.push(res);
       }
       doubleRef.value = newArr;
     };
+    const setDragSrc = () => {
+      let nUp = 1
+
+      while (nUp <= startData.up) {
+        bglist[startData.row - nUp][startData.col].url = LineBg;
+        bglist[startData.row - nUp][startData.col].drag = false;
+        ++nUp;
+      }
+      let nDown = 1
+      while (nDown <= Math.abs(startData.down) && Number(startData.row) + Number(nDown) < bglist.length) {
+        bglist[Number(startData.row) + Number(nDown)][startData.col].url = LineBg;
+        bglist[Number(startData.row) + Number(nDown)][startData.col].drag = false;
+        ++nDown;
+      }
+      bglist[startData.row][startData.col].url = LineBg;
+      bglist[startData.row][startData.col].drag = false;
+      bglist[startData.row][startData.col].up = 0;
+      bglist[startData.row][startData.col].down = 0;
+    }
+    const setDragDes = () => {
+      bglist[endData.row][endData.col].up = startData.up;
+      bglist[endData.row][endData.col].down = startData.down;
+      let nUp = 1
+      while (nUp <= startData.up) {
+        if (nUp < startData.up) {
+          bglist[endData.row - nUp][endData.col].url = VerticalLine;
+          bglist[endData.row - nUp][endData.col].drag = false;
+        }
+        else {
+          bglist[endData.row - nUp][endData.col].url = SolidCircle;
+          bglist[endData.row - nUp][endData.col].drag = false;
+
+        }
+        ++nUp;
+      }
+      let nDown = 1
+      while (nDown <= Math.abs(startData.down)) {
+        if (nDown < Math.abs(startData.down)) {
+          bglist[Number(endData.row) + Number(nDown)][endData.col].url = VerticalLine;
+          bglist[Number(endData.row) + Number(nDown)][endData.col].drag = false;
+        }
+        else {
+          bglist[Number(endData.row) + Number(nDown)][endData.col].url = SolidCircle;
+          bglist[Number(endData.row) + Number(nDown)][endData.col].drag = false;
+        }
+        ++nDown;
+      }
+    }
     const dragend = (item, e) => {
       let bCanMove = isCanMove(startData, endData)
 
@@ -142,42 +190,12 @@ export default {
         if ('paramSet' in startData) {
           bglist[endData.row][endData.col].paramSet = startData.paramSet;
         }
-        /*多个图片移动数据*/
+        /*多个图片移动数据交换*/
         if (bDrag) {
-          let nUp = 1
-          while (nUp <= startData.up) {
-            bglist[startData.row - nUp][startData.col].url = LineBg;
-            bglist[startData.row - nUp][startData.col].drag = false;
-            nUp = nUp + 1;
-          }
-          let nDown = 1
-          while (nDown <= Math.abs(startData.down) && Number(startData.row) + Number(nDown) < bglist.length) {
-            bglist[Number(startData.row) + Number(nDown)][startData.col].url = LineBg;
-            bglist[Number(startData.row) + Number(nDown)][startData.col].drag = false;
-            nDown = nDown + 1;
-          }
-          bglist[startData.row][startData.col].url = LineBg;
-          bglist[startData.row][startData.col].drag = false;
-          bglist[startData.row][startData.col].up = 0;
-          bglist[startData.row][startData.col].down = 0;
-
-          bglist[endData.row][endData.col].up = startData.up;
-          bglist[endData.row][endData.col].down = startData.down;
-          nUp = 1
-          while (nUp <= startData.up) {
-            bglist[endData.row - nUp][endData.col].url = SolidCircle;
-            bglist[endData.row - nUp][endData.col].drag = false;
-            nUp = nUp + 1;
-          }
-          nDown = 1
-          while (nDown <= Math.abs(startData.down)) {
-            bglist[Number(endData.row) + Number(nDown)][endData.col].url = SolidCircle;
-            bglist[Number(endData.row) + Number(nDown)][endData.col].drag = false;
-            nDown = nDown + 1;
-          }
-
+          setDragSrc();
+          setDragDes();
         }
-        if ('control' in startData) {
+        if ('control' in startData && startData.control > 0 ) {
           for (let row = 0; row < bglist.length; row++) {
             if (endData.row !== row) {
               bglist[row][endData.col].url = HollowCircle;
@@ -188,8 +206,14 @@ export default {
           }
           clickStatus = startData.control;
         }
-        bglist[endData.row][endData.col].url = startData.url;
-        bglist[endData.row][endData.col].drag = true;
+        if ('control' in startData && startData.control > 0) {        
+          bglist[endData.row][endData.col].url = startData.url;
+          bglist[endData.row][endData.col].drag = false;
+        }
+        else {
+          bglist[endData.row][endData.col].url = startData.url;
+          bglist[endData.row][endData.col].drag = true;
+        }
         /*清除背景*/
         drawBackgroundChange("leave", endData.row, endData.col, startData.up, startData.down)
       }
@@ -220,8 +244,6 @@ export default {
       }
 
       if (typeof (row) != "undefined" && typeof (col) != "undefined") {
-        console.log('row:'+row)
-        console.log('col:'+col)
         doubleRef._rawValue[row][col].style.background = colorMap[type];
       }
 
@@ -296,13 +318,19 @@ export default {
     const SetControlGate = (value) => {
       const nContr = value.control;
       if ('click' in value && value.click) {
-        value.url = SolidCircle
+        if (startData.hasOwnProperty('attach')) {
+          value.url = startData.attach
+        }
+        else {
+          value.url = SolidCircle
+        }
+
         for (let row = 0; row < bglist.length; row++) {
           if ('control' in bglist[row][value.col]) {
             bglist[row][value.col].control = nContr - 1;
           }
         }
-        clickStatus = clickStatus - 1;
+        clickStatus--;
         value.click = false;
         bglist[endData.row][endData.col].up = (endData.row - value.row) > bglist[endData.row][endData.col].up ? endData.row - value.row : bglist[endData.row][endData.col].up;
         bglist[endData.row][endData.col].down = (value.row - endData.row) > bglist[endData.row][endData.col].down ? endData.row - value.row : bglist[endData.row][endData.col].down;
@@ -311,14 +339,21 @@ export default {
       if (value.control === 0) {
         for (let row = 0; row < bglist.length; row++) {
           if (value.row !== row && bglist[row][value.col].url === HollowCircle) {
-            bglist[row][value.col].url = LineBg;
-            bglist[row][value.col].click = false;
+            if ((Number(endData.row) - Number(bglist[endData.row][endData.col].up) <= row) && (Number(endData.row) - Number(bglist[endData.row][endData.col].down) >= row)) {
+              bglist[row][value.col].url = VerticalLine
+              bglist[row][value.col].click = false;
+            }
+            else {
+              bglist[row][value.col].url = LineBg;
+              bglist[row][value.col].click = false;
+            }
           }
         }
+        bglist[endData.row][endData.col].drag = true;
       }
     };
     /*** 删除跟增加* @param { String } type add 增加 reduce 减少*/
-    const setImgList = (type, index = null) => {
+    const changeImgList = (type, index = null) => {
       const imgMap = new Map([
         [
           "add",
@@ -378,7 +413,7 @@ export default {
       clickAdd,
       SetControlGate,
       judgClick,
-      setImgList,
+      changeImgList,
       handleRef,
       Qubits,
       QubitsLineDepth,

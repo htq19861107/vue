@@ -93,7 +93,8 @@ export const imgGate = [
       name: "ISWAP",
       url: require("../assets/gate/ISWAP.png"),
       tooltip: "ISWAP",
-      control:1
+      control:1,
+      attach:require("../assets/gate/ISWAP.png"),
     },
     {
       name: "SQISWAP",
@@ -178,7 +179,8 @@ export const initParam = {
         QubitsLineDepth:100,
         LineBg:require("../assets/svg/Line.svg"),
         HollowCircle:require("../assets/svg/HollowCircle.svg"),
-        SolidCircle:require("../assets/svg/SolidCircle.svg")
+        SolidCircle:require("../assets/svg/SolidCircle.svg"),
+        VerticalLine:require("../assets/svg/vertical-line.svg"),      
     },
     computeArrayChart:{
         Qubits:15,
