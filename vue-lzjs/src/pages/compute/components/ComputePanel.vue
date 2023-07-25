@@ -150,28 +150,24 @@ export default {
       }
     }
     const setDragSrc = (bMoveBack) => {
-      console.log('bMoveBack:'+bMoveBack)
+      let col = Number(startData.col) + Number(bMoveBack ? 1 : 0)
+      if (bMoveBack) {
+        col = endData.col < startData.col ? col : --col;
+      }
 
-      let col = Number(startData.col) + Number(bMoveBack?1:0)
-      col = endData.col < startData.col ? col:--col;
       let nUp = 1
-      console.log('col:'+col)
       while (nUp <= startData.up) {
-        let row = startData.row - nUp 
+        let row = startData.row - nUp
         bglist[row][col].url = LineBg;
         bglist[row][col].drag = false;
         clearDrc(bglist[row][col])
         ++nUp;
       }
       let nDown = 1
-      console.log('startData.row:'+startData.row)
-      console.log('Math.abs(startData.down):'+Math.abs(startData.down))
-      console.log('Number(startData.row):'+Number(startData.row))
-      console.log('Number(nDown):'+Number(nDown))
-      let nss = nDown <= Math.abs(startData.down)
-      console.log('nss:'+nss)
       while (nDown <= Math.abs(startData.down) && Number(startData.row) + Number(nDown) < bglist.length) {
-        let row = Number(startData.row) + Number(nDown)       
+        let row = Number(startData.row) + Number(nDown)
+        console.log('row' + row)
+        console.log('col' + col)
         bglist[row][col].url = LineBg;
         bglist[row][col].drag = false;
         clearDrc(bglist[row][col])
@@ -233,20 +229,46 @@ export default {
       while (nUp <= startData.up) {
         let row = endData.row - nUp
         if (bglist[row][endData.col].url != LineBg) {
-            bReslt = true;
-            break;
-          }
+          bReslt = true;
+          break;
+        }
         ++nUp;
       }
       let nDown = 1
       while (nDown <= Math.abs(startData.down)) {
         let row = Number(endData.row) + Number(nDown)
         if (bglist[row][endData.col].url != LineBg) {
+          bReslt = true;
+          break;
+        }
+        ++nDown;
+      }
+      //跟自己重叠
+      return bReslt;
+    }
+    const isOverlapSelf = () => {
+      let bReslt = false;
+      if (startData.col == endData.col) {
+        let nUp = 1
+        while (nUp <= startData.up) {
+          let row = endData.row - nUp
+          if (row >= startData.row - startData.up || row < Number(startData.row) + Number(startData.down)) {
             bReslt = true;
             break;
           }
-        ++nDown;
+          ++nUp;
+        }
+        let nDown = 1
+        while (nDown <= Math.abs(startData.down)) {
+          let row = Number(endData.row) + Number(nDown)
+          if (row >= startData.row - startData.up || row < Number(startData.row) + Number(startData.down)) {
+            bReslt = true;
+            break;
+          }
+          ++nDown;
+        }
       }
+
       return bReslt;
     }
     const dragend = (item, e) => {
@@ -258,7 +280,8 @@ export default {
           bglist[endData.row][endData.col].paramSet = startData.paramSet;
         }
         /*多个图片移动数据交换*/
-        if (bMoveBack) {
+        let bOverlapSelf = isOverlapSelf();
+        if (bMoveBack && !bOverlapSelf) {
           for (let row = 0; row < bglist.length; row++) {
             let itemRow = bglist[row]
             itemRow.pop()
@@ -279,6 +302,9 @@ export default {
               }
             }
           }
+          nextTick(() => {
+            spliceDoubleArr(100, bgRef._rawValue);
+          });
         }
         if (bDrag) {
           setDragSrc(bMoveBack);
