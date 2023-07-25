@@ -11,7 +11,13 @@ export default createStore({
     quantumData:{
         prjName:'',
         runLine:'',
-        qubits:0,
+        qubits:{
+          row:0,
+          col:0,
+          type:null,
+          order:-1,//根据顺序来确定门的执行顺序，主要为门设计，如果相同则为交换门
+          param:0
+        },
         lineDepth:0,
         qubitsArray:[],
     },

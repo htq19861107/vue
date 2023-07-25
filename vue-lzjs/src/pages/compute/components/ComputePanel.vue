@@ -77,21 +77,28 @@ export default {
       }
       return target;
     }
+    const createBasicQubit = (id, row, col, drag, url, click, up, down, type, order, param) => {
+      let obj = {
+        id: id,
+        row: row,
+        col: col,
+        drag: drag,
+        url: url,
+        click: click,
+        up: up,//中心点向上偏移
+        down: down,//中心点向下偏移
+        type: type,//类型
+        order: order,//根据顺序来确定门的执行顺序，主要为门设计，如果相同则为交换门
+        param: param//是否有参数设置
+      }
+      return obj;
+    }
 
     const initBglist = () => {
       for (let row = 0; row < Qubits; row++) {
         let imgRow = [];
         for (let col = 0; col < QubitsLineDepth; col++) {
-          imgRow.push({
-            id: -1,
-            row: row,
-            col: col,
-            drag: false,
-            url: LineBg,
-            click: false,
-            up: 0,//中心点向上偏移
-            down: 0//中心点向下偏移
-          });
+          imgRow.push(createBasicQubit(-1,row,col,false,LineBg,false,0,0,null,-1))
         }
         if (imgRow.length > 0) {
           bglist.push(imgRow);
@@ -271,6 +278,16 @@ export default {
 
       return bReslt;
     }
+    const checkIllegal = (startData, endData) => {
+      let bIllegal = false;
+      qubitsArray = store.quantumData.qubitsArray
+      for (let iRow = 0; iRow < qubitsArray.length; iRow++) {
+        for (let iCol = 0; iCol < qubitsArray[iRow].length; iCol++) {
+          store.quantumData.qubitsArray[iRow][iCol].q
+        }
+      }
+      return bIllegal;
+    }
     const dragend = (item, e) => {
       let bCanMove = isCanMove(startData, endData)
       let bMoveBack = isMoveBack(startData, endData)
@@ -285,16 +302,7 @@ export default {
           for (let row = 0; row < bglist.length; row++) {
             let itemRow = bglist[row]
             itemRow.pop()
-            let item = {
-              id: -1,
-              row: row,
-              col: endData.col,
-              drag: false,
-              url: LineBg,
-              click: false,
-              up: 0,//中心点向上偏移
-              down: 0//中心点向下偏移
-            }
+            let item = createBasicQubit(-1,row,endData.col,false,LineBg,false,0,0,null,-1,-1);
             itemRow.splice(endData.col, 0, item)
             for (let col = 0; col < itemRow.length; col++) {
               if (endData.col < col) {
@@ -331,12 +339,10 @@ export default {
           bglist[endData.row][endData.col].drag = true;
         }
         /*清除背景*/
-        //drawBackgroundChange("leave", endData.row, endData.col, startData.up, startData.down)
       }
       drawBackgroundChange("leave", endData.row, endData.col, startData.up, startData.down)
       e.preventDefault();
     };
-
 
     /*** 背景阴影* @param { String } type access:进入 & leave:离开*/
     const drawBackgroundChange = (type, row, col, up, down) => {
@@ -362,8 +368,6 @@ export default {
       if (typeof (row) != "undefined" && typeof (col) != "undefined") {
         doubleRef._rawValue[row][col].style.background = colorMap[type];
       }
-
-
     };
 
     const isCanMove = (src, des) => {
@@ -392,16 +396,7 @@ export default {
       const nlen = bglist.length;
       let bgCol = [];
       for (let iCol = 0; iCol < QubitsLineDepth; iCol++) {
-        let objBg = {
-          id: -1,
-          row: nlen,
-          col: iCol,
-          url: LineBg,
-          drag: false,
-          click: false,
-          up: 0,//中心点向上偏移
-          down: 0//中心点向下偏移
-        };
+        let objBg = createBasicQubit(-1,nlen,iCol,false,LineBg,false,0,0,null,-1,-1);
         bgCol.push(objBg);
       }
       bglist.push(bgCol);
@@ -468,16 +463,8 @@ export default {
           "add",
           () => {
             let newImgArr = [];
-            for (let i = 0; i < QubitsLineDepth; i++) {
-              newImgArr.push({
-                row: bglist.length,
-                col: i,
-                drag: false, // 是否为已选择的指示点
-                url: LineBg,
-                click: false,
-                up: 0,//中心点向上偏移
-                down: 0//中心点向下偏移
-              });
+            for (let iCol = 0; iCol < QubitsLineDepth; iCol++) {
+              newImgArr.push(createBasicQubit(-1,bglist.length,iCol,false,LineBg,false,0,0,null,-1,-1));
             }
             bgRef.value = [];
             bglist.push(newImgArr);
@@ -544,7 +531,6 @@ export default {
   width: 100%;
   padding-left: 15px;
   box-sizing: border-box;
-
   .dragicon {
     .quantumGates {
       ul {
