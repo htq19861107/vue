@@ -184,7 +184,7 @@ export default {
       let down = getItemDown(startData)
       let col = endData.col
       let arrRow = convertAttac2Col(startData.attach, endData.row)
-      for (let nRow = 0; nRow < bglist.length; nRow++) {
+      for (let nRow = Number(endData.row) + Number(up); nRow <= Number(endData.row) + Number(down); nRow++) {
         if (nRow >= Number(startData.row) + Number(up) && nRow <= Number(startData.row) + Number(down)) {
           if (arrRow.includes(nRow)) {
             if (startData.hasOwnProperty('swap')) {
@@ -210,6 +210,7 @@ export default {
         let row = 0
         while (row < bglist.length) {
           if (bglist[row][endData.col].url != LineBg) {
+            console.log('sdfsdafdsafdsf')
             bReslt = true;
             break;
           }
@@ -218,18 +219,31 @@ export default {
         return bReslt;
       }
       //判断是否重叠
-      for(let nRow = 0 ;nRow < bglist.length;nRow++){
-        let up = getItemUp(startData)
-        let down = getItemDown(startData)
-        let row = endData.row
-        if(nRow >= Number(row) + Number(up) && nRow <= Number(row) + Number(down)){
-          bReslt = true;
-          break;
+      let startArr = []
+      let endArr = []
+      for (let nRet = 0; nRet < bglist.length; nRet++) {
+        if (nRet >= Number(startData.row) + Number(getItemUp(startData)) && nRet <= Number(startData.row) + Number(getItemDown(startData))) {
+          startArr.push(nRet)
         }
       }
-
-      //跟自己重叠
+      for (let nRet = 0; nRet < bglist.length; nRet++) {
+        if (nRet >= Number(endData.row) + Number(getItemUp(endData)) && nRet <= Number(endData.row) + Number(getItemDown(endData))) {
+          endArr.push(nRet)
+        }
+      }
+      if (startData.col == endData.col) {
+        const results = [];
+        for (let i = 0; i < endArr.length; i++) {
+          if (startArr.includes(endArr[i])) {
+            results.push(endArr[i]);
+          }
+        }
+        if (results.length > 0) {
+          bReslt = true;
+        }
+      }
       return bReslt;
+      //跟自己重叠
     }
     const isOverlapSelf = () => {
       let bReslt = false;
@@ -279,7 +293,7 @@ export default {
         /*多个图片移动数据交换*/
         let bOverlapSelf = isOverlapSelf();
         console.log('bOverlapSelf:' + bOverlapSelf)
-        if (!bOverlapSelf) {
+        if (bOverlapSelf) {
           for (let row = 0; row < bglist.length; row++) {
             let itemRow = bglist[row]
             itemRow.pop()
@@ -296,6 +310,9 @@ export default {
           });
         }
         if (bDrag) {
+          console.log('bDrag:'+bDrag)
+          console.log('bMoveBack:'+bMoveBack)
+          console.log('bCanMove:'+bCanMove)
           setDragSrc(bMoveBack);
           setDragDes();
         }
