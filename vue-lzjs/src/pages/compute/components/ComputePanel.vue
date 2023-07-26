@@ -64,20 +64,8 @@ export default {
     let bgRef = ref([]);
     let doubleRef = ref([]); // dom二维数组
     let isHaveEle = null;
-    function deepClone(obj) {
-      var target = {};
-      for (var key in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-          if (typeof obj[key] === 'object') {
-            target[key] = deepClone(obj[key]);
-          } else {
-            target[key] = obj[key];
-          }
-        }
-      }
-      return target;
-    }
-    const createBasicQubit = (id, row, col, drag, url, click, up, down, type, order, param) => {
+
+    const createBasicQubit = (id, row, col, drag, url, click, type, order, param) => {
       let obj = {
         id: id,
         row: row,
@@ -85,20 +73,34 @@ export default {
         drag: drag,
         url: url,
         click: click,
-        up: up,//中心点向上偏移
-        down: down,//中心点向下偏移
         type: type,//类型
         order: order,//根据顺序来确定门的执行顺序，主要为门设计，如果相同则为交换门
-        param: param//是否有参数设置
+        param: param,//是否有参数设置
+        attach: []//{position:-1,url:url}
       }
       return obj;
     }
-
+    const getItemDown = (item) => {
+      if (item.hasOwnProperty('attach')) {
+        let max = Math.max(...item.attach);
+        return max > 0 ? max : 0;
+      } else {
+        return 0;
+      }
+    }
+    const getItemUp = (item) => {
+      if (item.hasOwnProperty('attach')) {
+        let min = Math.min(...item.attach);
+        return min < 0 ? min : 0;
+      } else {
+        return 0;
+      }
+    }
     const initBglist = () => {
       for (let row = 0; row < Qubits; row++) {
         let imgRow = [];
         for (let col = 0; col < QubitsLineDepth; col++) {
-          imgRow.push(createBasicQubit(-1,row,col,false,LineBg,false,0,0,null,-1))
+          imgRow.push(createBasicQubit(-1, row, col, false, LineBg, false, null, -1,-1))
         }
         if (imgRow.length > 0) {
           bglist.push(imgRow);
@@ -115,12 +117,13 @@ export default {
 
     /*** 按钮组移动*/
     const dragStart = (value) => {
-      startData = deepClone(value);
+      startData = JSON.parse(JSON.stringify(value));
+
     };
     const dragOver = (value, e) => {
-      endData = deepClone(value);
+      endData = JSON.parse(JSON.stringify(value));
       const { row, col } = value;
-      drawBackgroundChange("access", row, col, startData.up, startData.down);
+      drawBackgroundChange("access", row, col, getItemUp(startData), getItemDown(startData));
       e.preventDefault();
     };
     /**
@@ -128,7 +131,7 @@ export default {
     */
     const dragLeave = (value, e) => {
       const { row, col } = value;
-      drawBackgroundChange("leave", row, col, startData.up, startData.down);
+      drawBackgroundChange("leave", row, col, getItemUp(startData), getItemDown(startData));
       e.preventDefault();
     };
     /*** 切割为二维数组*/
@@ -152,6 +155,9 @@ export default {
       if (vaule.hasOwnProperty('paramSet')) {
         delete vaule.paramSet;
       }
+      if (vaule.hasOwnProperty('swap')) {
+        delete vaule.swap;
+      }
       if (vaule.hasOwnProperty('attach')) {
         delete vaule.attach;
       }
@@ -163,7 +169,8 @@ export default {
       }
 
       let nUp = 1
-      while (nUp <= startData.up) {
+      let up = getItemUp(startData)
+      while (nUp <= Math.abs(up)) {
         let row = startData.row - nUp
         bglist[row][col].url = LineBg;
         bglist[row][col].drag = false;
@@ -171,10 +178,8 @@ export default {
         ++nUp;
       }
       let nDown = 1
-      while (nDown <= Math.abs(startData.down) && Number(startData.row) + Number(nDown) < bglist.length) {
+      while (nDown <= Math.abs(getItemDown(startData)) && Number(startData.row) + Number(nDown) < bglist.length) {
         let row = Number(startData.row) + Number(nDown)
-        console.log('row' + row)
-        console.log('col' + col)
         bglist[row][col].url = LineBg;
         bglist[row][col].drag = false;
         clearDrc(bglist[row][col])
@@ -182,18 +187,16 @@ export default {
       }
       bglist[startData.row][col].url = LineBg;
       bglist[startData.row][col].drag = false;
-      bglist[startData.row][col].up = 0;
-      bglist[startData.row][col].down = 0;
       clearDrc(bglist[startData.row][col])
     }
 
     const setDragDes = () => {
-      bglist[endData.row][endData.col].up = startData.up;
-      bglist[endData.row][endData.col].down = startData.down;
+      bglist[endData.row][endData.col].attach = startData.attach;
       let nUp = 1
-      while (nUp <= startData.up) {
+      let up = Math.abs(getItemUp(startData))
+      while (nUp <= Math.abs(up)) {
         let row = endData.row - nUp
-        if (nUp < startData.up) {
+        if (nUp < up) {
           bglist[row][endData.col].url = VerticalLine;
           bglist[row][endData.col].drag = false;
         }
@@ -204,9 +207,10 @@ export default {
         ++nUp;
       }
       let nDown = 1
-      while (nDown <= Math.abs(startData.down)) {
+      let down = getItemDown(startData)
+      while (nDown <= Math.abs(down)) {
         let row = Number(endData.row) + Number(nDown)
-        if (nDown < Math.abs(startData.down)) {
+        if (nDown < Math.abs(down)) {
           bglist[row][endData.col].url = VerticalLine;
           bglist[row][endData.col].drag = false;
         }
@@ -302,7 +306,7 @@ export default {
           for (let row = 0; row < bglist.length; row++) {
             let itemRow = bglist[row]
             itemRow.pop()
-            let item = createBasicQubit(-1,row,endData.col,false,LineBg,false,0,0,null,-1,-1);
+            let item = createBasicQubit(-1, row, endData.col, false, LineBg, false, null, -1, -1);
             itemRow.splice(endData.col, 0, item)
             for (let col = 0; col < itemRow.length; col++) {
               if (endData.col < col) {
@@ -396,7 +400,7 @@ export default {
       const nlen = bglist.length;
       let bgCol = [];
       for (let iCol = 0; iCol < QubitsLineDepth; iCol++) {
-        let objBg = createBasicQubit(-1,nlen,iCol,false,LineBg,false,0,0,null,-1,-1);
+        let objBg = createBasicQubit(-1, nlen, iCol, false, LineBg, false, null, -1, -1);
         bgCol.push(objBg);
       }
       bglist.push(bgCol);
@@ -422,8 +426,8 @@ export default {
     const SetControlGate = (value) => {
       const nContr = value.control;
       if ('click' in value && value.click) {
-        if (startData.hasOwnProperty('attach')) {
-          value.url = startData.attach
+        if (startData.hasOwnProperty('swap')) {
+          value.url = startData.swap
         }
         else {
           value.url = SolidCircle
@@ -436,14 +440,15 @@ export default {
         }
         clickStatus--;
         value.click = false;
-        bglist[endData.row][endData.col].up = (endData.row - value.row) > bglist[endData.row][endData.col].up ? endData.row - value.row : bglist[endData.row][endData.col].up;
-        bglist[endData.row][endData.col].down = (value.row - endData.row) > bglist[endData.row][endData.col].down ? endData.row - value.row : bglist[endData.row][endData.col].down;
-
+        bglist[endData.row][endData.col].attach.push(value.row - endData.row);
       }
+
+      let up = getItemUp(bglist[endData.row][endData.col])
+      let down = getItemDown(bglist[endData.row][endData.col])
       if (value.control === 0) {
         for (let row = 0; row < bglist.length; row++) {
           if (value.row !== row && bglist[row][value.col].url === HollowCircle) {
-            if ((Number(endData.row) - Number(bglist[endData.row][endData.col].up) <= row) && (Number(endData.row) - Number(bglist[endData.row][endData.col].down) >= row)) {
+            if ((Number(endData.row) + Number(up) <= row) && (Number(endData.row) + Number(down) >= row)) {
               bglist[row][value.col].url = VerticalLine
               bglist[row][value.col].click = false;
             }
@@ -464,7 +469,7 @@ export default {
           () => {
             let newImgArr = [];
             for (let iCol = 0; iCol < QubitsLineDepth; iCol++) {
-              newImgArr.push(createBasicQubit(-1,bglist.length,iCol,false,LineBg,false,0,0,null,-1,-1));
+              newImgArr.push(createBasicQubit(-1, bglist.length, iCol, false, LineBg, false, null, -1, -1));
             }
             bgRef.value = [];
             bglist.push(newImgArr);
@@ -531,6 +536,7 @@ export default {
   width: 100%;
   padding-left: 15px;
   box-sizing: border-box;
+
   .dragicon {
     .quantumGates {
       ul {

@@ -94,7 +94,7 @@ export const imgGate = [
       url: require("../assets/gate/ISWAP.png"),
       tooltip: "ISWAP",
       control:1,
-      attach:require("../assets/gate/ISWAP.png"),
+      swap:require("../assets/gate/ISWAP.png"),
     },
     {
       name: "SQISWAP",
