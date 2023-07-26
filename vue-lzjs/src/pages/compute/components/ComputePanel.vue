@@ -218,50 +218,44 @@ export default {
         return bReslt;
       }
       //判断是否重叠
-      let nUp = 1
-      while (nUp <= startData.up) {
-        let row = endData.row - nUp
-        if (bglist[row][endData.col].url != LineBg) {
+      for(let nRow = 0 ;nRow < bglist.length;nRow++){
+        let up = getItemUp(startData)
+        let down = getItemDown(startData)
+        let row = endData.row
+        if(nRow >= Number(row) + Number(up) && nRow <= Number(row) + Number(down)){
           bReslt = true;
           break;
         }
-        ++nUp;
       }
-      let nDown = 1
-      while (nDown <= Math.abs(startData.down)) {
-        let row = Number(endData.row) + Number(nDown)
-        if (bglist[row][endData.col].url != LineBg) {
-          bReslt = true;
-          break;
-        }
-        ++nDown;
-      }
+
       //跟自己重叠
       return bReslt;
     }
     const isOverlapSelf = () => {
       let bReslt = false;
-      if (startData.col == endData.col) {
-        let nUp = 1
-        while (nUp <= startData.up) {
-          let row = endData.row - nUp
-          if (row >= startData.row - startData.up || row < Number(startData.row) + Number(startData.down)) {
-            bReslt = true;
-            break;
-          }
-          ++nUp;
-        }
-        let nDown = 1
-        while (nDown <= Math.abs(startData.down)) {
-          let row = Number(endData.row) + Number(nDown)
-          if (row >= startData.row - startData.up || row < Number(startData.row) + Number(startData.down)) {
-            bReslt = true;
-            break;
-          }
-          ++nDown;
+      let startArr = []
+      let endArr = []
+      for (let nRet = 0; nRet < bglist.length; nRet++) {
+        if (nRet >= Number(startData.row) + Number(getItemUp(startData)) && nRet <= Number(startData.row) + Number(getItemDown(startData))) {
+          startArr.push(nRet)
         }
       }
-
+      for (let nRet = 0; nRet < bglist.length; nRet++) {
+        if (nRet >= Number(endData.row) + Number(getItemUp(endData)) && nRet <= Number(endData.row) + Number(getItemDown(endData))) {
+          endArr.push(nRet)
+        }
+      }
+      if (startData.col == endData.col) {
+        const results = [];
+        for (let i = 0; i < endArr.length; i++) {
+          if (startArr.includes(endArr[i])) {
+            results.push(endArr[i]);
+          }
+        }
+        if (results.length > 0) {
+          bReslt = true;
+        }
+      }
       return bReslt;
     }
     const checkIllegal = (startData, endData) => {
@@ -284,7 +278,8 @@ export default {
         }
         /*多个图片移动数据交换*/
         let bOverlapSelf = isOverlapSelf();
-        if (bMoveBack && !bOverlapSelf) {
+        console.log('bOverlapSelf:' + bOverlapSelf)
+        if (!bOverlapSelf) {
           for (let row = 0; row < bglist.length; row++) {
             let itemRow = bglist[row]
             itemRow.pop()
