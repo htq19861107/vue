@@ -63,7 +63,6 @@ export default {
     let paramShow = false;
     let bgRef = ref([]);
     let doubleRef = ref([]); // dom二维数组
-    let isHaveEle = null;
 
     const createBasicQubit = (id, row, col, drag, url, click, type, order, param) => {
       let obj = {
@@ -100,7 +99,7 @@ export default {
       for (let row = 0; row < Qubits; row++) {
         let imgRow = [];
         for (let col = 0; col < QubitsLineDepth; col++) {
-          imgRow.push(createBasicQubit(-1, row, col, false, LineBg, false, null, -1,-1))
+          imgRow.push(createBasicQubit(-1, row, col, false, LineBg, false, null, -1, -1))
         }
         if (imgRow.length > 0) {
           bglist.push(imgRow);
@@ -167,58 +166,41 @@ export default {
       if (bMoveBack) {
         col = endData.col < startData.col ? col : --col;
       }
-
-      let nUp = 1
-      let up = getItemUp(startData)
-      while (nUp <= Math.abs(up)) {
-        let row = startData.row - nUp
-        bglist[row][col].url = LineBg;
-        bglist[row][col].drag = false;
-        clearDrc(bglist[row][col])
-        ++nUp;
+      for (let nRow = 0; nRow < bglist.length; nRow++) {
+        if (nRow >= Number(startData.row) + Number(getItemUp(startData)) && nRow <= Number(startData.row) + Number(getItemDown(startData))) {
+          bglist[nRow][col].url = LineBg;
+          bglist[nRow][col].drag = false;
+          clearDrc(bglist[nRow][col])
+        }
       }
-      let nDown = 1
-      while (nDown <= Math.abs(getItemDown(startData)) && Number(startData.row) + Number(nDown) < bglist.length) {
-        let row = Number(startData.row) + Number(nDown)
-        bglist[row][col].url = LineBg;
-        bglist[row][col].drag = false;
-        clearDrc(bglist[row][col])
-        ++nDown;
-      }
-      bglist[startData.row][col].url = LineBg;
-      bglist[startData.row][col].drag = false;
-      clearDrc(bglist[startData.row][col])
     }
-
+    const convertAttac2Col = (attach, row) => {
+      let arr = attach.map((item) => { return row + item })
+      return arr
+    }
     const setDragDes = () => {
       bglist[endData.row][endData.col].attach = startData.attach;
-      let nUp = 1
-      let up = Math.abs(getItemUp(startData))
-      while (nUp <= Math.abs(up)) {
-        let row = endData.row - nUp
-        if (nUp < up) {
-          bglist[row][endData.col].url = VerticalLine;
-          bglist[row][endData.col].drag = false;
-        }
-        else {
-          bglist[row][endData.col].url = SolidCircle;
-          bglist[row][endData.col].drag = false;
-        }
-        ++nUp;
-      }
-      let nDown = 1
+      let up = getItemUp(startData)
       let down = getItemDown(startData)
-      while (nDown <= Math.abs(down)) {
-        let row = Number(endData.row) + Number(nDown)
-        if (nDown < Math.abs(down)) {
-          bglist[row][endData.col].url = VerticalLine;
-          bglist[row][endData.col].drag = false;
+      let col = endData.col
+      let arrRow = convertAttac2Col(startData.attach, endData.row)
+      for (let nRow = 0; nRow < bglist.length; nRow++) {
+        if (nRow >= Number(startData.row) + Number(up) && nRow <= Number(startData.row) + Number(down)) {
+          if (arrRow.includes(nRow)) {
+            if (startData.hasOwnProperty('swap')) {
+              bglist[nRow][col].url = startData.swap;
+              bglist[nRow][col].swap = startData.swap;
+            }
+            else {
+              bglist[nRow][col].url = SolidCircle;
+            }
+            bglist[nRow][col].drag = false;
+          }
+          else {
+            bglist[nRow][col].url = VerticalLine;
+            bglist[nRow][col].drag = false;
+          }
         }
-        else {
-          bglist[row][endData.col].url = SolidCircle;
-          bglist[row][endData.col].drag = false;
-        }
-        ++nDown;
       }
     }
     const isMoveBack = (src, des) => {
@@ -342,9 +324,12 @@ export default {
           bglist[endData.row][endData.col].url = startData.url;
           bglist[endData.row][endData.col].drag = true;
         }
+        if ('swap' in startData) {
+          bglist[endData.row][endData.col].swap = startData.swap;
+        }
         /*清除背景*/
       }
-      drawBackgroundChange("leave", endData.row, endData.col, startData.up, startData.down)
+      drawBackgroundChange("leave", endData.row, endData.col, getItemUp(startData), getItemDown(startData))
       e.preventDefault();
     };
 
@@ -354,35 +339,22 @@ export default {
         access: "gray", // 鼠标移入背景
         leave: "white", // 鼠标离开背景
       };
-      if (up > 0) {
-        let val = 1;
-        while ((val <= up) && ((row - val) >= 0)) {
-          doubleRef._rawValue[row - val][col].style.background = colorMap[type];
-          val++;
+      for (let nRow = 0; nRow < bglist.length; nRow++) {
+        if (nRow >= Number(row) + Number(up) && nRow <= Number(row) + Number(down)) {
+          doubleRef._rawValue[nRow][col].style.background = colorMap[type];
         }
-      }
-      if (down < 0) {
-        let val = 1;
-        while ((val <= Math.abs(down)) && ((Number(row) + Number(val)) < bglist.length)) {
-          doubleRef._rawValue[Number(row) + Number(val)][col].style.background = colorMap[type];
-          val++;
-        }
-      }
-
-      if (typeof (row) != "undefined" && typeof (col) != "undefined") {
-        doubleRef._rawValue[row][col].style.background = colorMap[type];
       }
     };
 
     const isCanMove = (src, des) => {
       // 超出边界
-      isHaveEle = true;
+      let bRet = true;
       if (src.hasOwnProperty('row')) {
         if (des.row - src.up < 0 || Number(des.row) + Number(Math.abs(src.down)) >= bglist.length) {
-          isHaveEle = false;
+          bRet = false;
         }
       }
-      return isHaveEle;
+      return bRet;
     };
     const handleRef = (el, item) => {
       if (el) {
@@ -442,7 +414,7 @@ export default {
         value.click = false;
         bglist[endData.row][endData.col].attach.push(value.row - endData.row);
       }
-
+      bglist[endData.row][endData.col].attach = bglist[endData.row][endData.col].attach.sort((a, b) => { return a - b })
       let up = getItemUp(bglist[endData.row][endData.col])
       let down = getItemDown(bglist[endData.row][endData.col])
       if (value.control === 0) {
