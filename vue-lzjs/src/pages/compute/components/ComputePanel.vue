@@ -44,6 +44,7 @@ import { useStore } from "vuex";
 import { imgGate, initParam } from "../../../config/baseConfig";
 import computeParamSet from "../components/ComputeParamSet"
 import ShowMsg, { useToastEffect } from "../../../components/ShowMsg"
+
 export default {
   name: "computePanel",
   components: {
@@ -60,9 +61,11 @@ export default {
     let startData = null;
     let endData = null;
     let clickStatus = 0;
+    let orderStatic = 0;
     let paramShow = false;
     let bgRef = ref([]);
     let doubleRef = ref([]); // dom二维数组
+    let positionMaxMap = new Map();
 
     const createBasicQubit = (id, row, col, drag, url, click, type, order, param) => {
       let obj = {
@@ -117,20 +120,27 @@ export default {
     /*** 按钮组移动*/
     const dragStart = (value) => {
       startData = JSON.parse(JSON.stringify(value));
-
+      getPositionMaxMap()
     };
     const dragOver = (value, e) => {
-      endData = JSON.parse(JSON.stringify(value));
       const { row, col } = value;
-      drawBackgroundChange("access", row, col, getItemUp(startData), getItemDown(startData));
+      if(col > positionMaxMap.get(row))
+      {
+        endData = JSON.parse(JSON.stringify(bglist[row][positionMaxMap.get(row)]));
+      }
+      else{
+        endData = JSON.parse(JSON.stringify(value));
+      }
+      
+      
+      drawBackgroundChange("access", endData.row, endData.col, getItemUp(startData), getItemDown(startData));
       e.preventDefault();
     };
     /**
     * 离开背景色改为白色
     */
     const dragLeave = (value, e) => {
-      const { row, col } = value;
-      drawBackgroundChange("leave", row, col, getItemUp(startData), getItemDown(startData));
+      drawBackgroundChange("leave", endData.row, endData.col, getItemUp(startData), getItemDown(startData));
       e.preventDefault();
     };
     /*** 切割为二维数组*/
@@ -145,9 +155,6 @@ export default {
       doubleRef.value = newArr;
     };
     const clearDrc = (vaule) => {
-      if (vaule.hasOwnProperty('id')) {
-        return;
-      }
       if (vaule.hasOwnProperty('control')) {
         delete vaule.control;
       }
@@ -184,8 +191,9 @@ export default {
       let down = getItemDown(startData)
       let col = endData.col
       let arrRow = convertAttac2Col(startData.attach, endData.row)
-      for (let nRow = Number(endData.row) + Number(up); nRow <= Number(endData.row) + Number(down); nRow++) {
-        if (nRow >= Number(startData.row) + Number(up) && nRow <= Number(startData.row) + Number(down)) {
+      let endRow = endData.row
+      for (let nRow = Number(endRow) + Number(up); nRow <= Number(endRow) + Number(down); nRow++) {
+        if (nRow >= Number(endRow) + Number(up) && nRow <= Number(endRow) + Number(down)) {
           if (arrRow.includes(nRow)) {
             if (startData.hasOwnProperty('swap')) {
               bglist[nRow][col].url = startData.swap;
@@ -205,48 +213,80 @@ export default {
     }
     const isMoveBack = (src, des) => {
       //从最上处拖都移动
-      let bReslt = false;
-      if (!src.hasOwnProperty('id')) {
+      let bReslt = false;//带control的需要单独开辟一列
+      if (src.hasOwnProperty('control') && endData != null) {
         let row = 0
         while (row < bglist.length) {
           if (bglist[row][endData.col].url != LineBg) {
-            console.log('sdfsdafdsafdsf')
             bReslt = true;
-            break;
+            return bReslt;
           }
           ++row;
         }
-        return bReslt;
       }
-      //判断是否重叠
-      let startArr = []
-      let endArr = []
-      for (let nRet = 0; nRet < bglist.length; nRet++) {
-        if (nRet >= Number(startData.row) + Number(getItemUp(startData)) && nRet <= Number(startData.row) + Number(getItemDown(startData))) {
-          startArr.push(nRet)
-        }
-      }
-      for (let nRet = 0; nRet < bglist.length; nRet++) {
-        if (nRet >= Number(endData.row) + Number(getItemUp(endData)) && nRet <= Number(endData.row) + Number(getItemDown(endData))) {
-          endArr.push(nRet)
-        }
-      }
-      if (startData.col == endData.col) {
-        const results = [];
-        for (let i = 0; i < endArr.length; i++) {
-          if (startArr.includes(endArr[i])) {
-            results.push(endArr[i]);
-          }
-        }
-        if (results.length > 0) {
-          bReslt = true;
-        }
-      }
+      bReslt = isOverlap()
+      //判断是否重叠,与其他重叠？
+      // let startArr = []
+      // let endArr = []
+      // for (let nRet = 0; nRet < bglist.length; nRet++) {
+      //   if (nRet >= Number(startData.row) + Number(getItemUp(startData)) && nRet <= Number(startData.row) + Number(getItemDown(startData))) {
+      //     startArr.push(nRet)
+      //   }
+      // }
+      // for (let nRet = 0; nRet < bglist.length; nRet++) {
+      //   if (nRet >= Number(endData.row) + Number(getItemUp(endData)) && nRet <= Number(endData.row) + Number(getItemDown(endData))) {
+      //     endArr.push(nRet)
+      //   }
+      // }
+      // if (startData.col == endData.col) {
+      //   const results = [];
+      //   for (let i = 0; i < endArr.length; i++) {
+      //     if (startArr.includes(endArr[i])) {
+      //       results.push(endArr[i]);
+      //     }
+      //   }
+      //   if (results.length > 0) {
+      //     bReslt = true;
+      //   }
+      // }
       return bReslt;
       //跟自己重叠
     }
+    const initMaxMap = () => {
+      for(let row = 0; row < bglist.length;row++){
+        positionMaxMap.set(row,0)
+      }
+    }
+    const getPositionMaxMap = () => {
+      for(let row = 0; row < bglist.length;row++){
+        for(let col = bglist[row].length - 1;col >= 0;col--){
+          if(bglist[row][col].url !=  LineBg ){
+            let max = col + 1;
+            positionMaxMap.set(row,max);
+            break;
+          }
+        }
+      }
+    }
+    const isOverlap = () => {
+      let bReslt = false;
+      let up = getItemUp(startData)
+      let down = getItemDown(startData)
+      let col = endData.col
+      let row = endData.row
+      for (let nRet = Number(row) + Number(up); nRet <= Number(row) + Number(down); nRet++) {
+        if (bglist[nRet][col].url != LineBg) {
+          bReslt = true;  
+          break;
+        }
+      }
+      return bReslt;
+    }
     const isOverlapSelf = () => {
       let bReslt = false;
+      if (endData == null) {
+        return bReslt
+      }
       let startArr = []
       let endArr = []
       for (let nRet = 0; nRet < bglist.length; nRet++) {
@@ -272,16 +312,7 @@ export default {
       }
       return bReslt;
     }
-    const checkIllegal = (startData, endData) => {
-      let bIllegal = false;
-      qubitsArray = store.quantumData.qubitsArray
-      for (let iRow = 0; iRow < qubitsArray.length; iRow++) {
-        for (let iCol = 0; iCol < qubitsArray[iRow].length; iCol++) {
-          store.quantumData.qubitsArray[iRow][iCol].q
-        }
-      }
-      return bIllegal;
-    }
+
     const dragend = (item, e) => {
       let bCanMove = isCanMove(startData, endData)
       let bMoveBack = isMoveBack(startData, endData)
@@ -292,8 +323,7 @@ export default {
         }
         /*多个图片移动数据交换*/
         let bOverlapSelf = isOverlapSelf();
-        console.log('bOverlapSelf:' + bOverlapSelf)
-        if (bOverlapSelf) {
+        if (bMoveBack) {
           for (let row = 0; row < bglist.length; row++) {
             let itemRow = bglist[row]
             itemRow.pop()
@@ -310,38 +340,41 @@ export default {
           });
         }
         if (bDrag) {
-          console.log('bDrag:'+bDrag)
-          console.log('bMoveBack:'+bMoveBack)
-          console.log('bCanMove:'+bCanMove)
           setDragSrc(bMoveBack);
           setDragDes();
         }
         //拖拽完为需要配置的门
-        if ('control' in startData && startData.control > 0) {
-          for (let row = 0; row < bglist.length; row++) {
-            if (endData.row !== row) {
-              bglist[row][endData.col].url = HollowCircle;
-              bglist[row][endData.col].click = true;
-              bglist[row][endData.col].drag = false;
-              bglist[row][endData.col].control = startData.control;
+        if (endData != null) {
+          if ('control' in startData && startData.control > 0) {
+            for (let row = 0; row < bglist.length; row++) {
+              if (endData.row !== row) {
+                bglist[row][endData.col].url = HollowCircle;
+                bglist[row][endData.col].click = true;
+                bglist[row][endData.col].drag = false;
+                bglist[row][endData.col].control = startData.control;
+              }
             }
+            clickStatus = startData.control;
+            orderStatic = clickStatus
           }
-          clickStatus = startData.control;
-        }
-        if ('control' in startData && startData.control > 0) {
-          bglist[endData.row][endData.col].url = startData.url;
-          bglist[endData.row][endData.col].drag = false;
-        }
-        else {
-          bglist[endData.row][endData.col].url = startData.url;
-          bglist[endData.row][endData.col].drag = true;
-        }
-        if ('swap' in startData) {
-          bglist[endData.row][endData.col].swap = startData.swap;
+          if ('control' in startData && startData.control > 0) {
+            bglist[endData.row][endData.col].url = startData.url;
+            bglist[endData.row][endData.col].drag = false;
+          }
+          else {
+            bglist[endData.row][endData.col].url = startData.url;
+            bglist[endData.row][endData.col].drag = true;
+          }
+          if ('swap' in startData) {
+            bglist[endData.row][endData.col].swap = startData.swap;
+          }
         }
         /*清除背景*/
       }
-      drawBackgroundChange("leave", endData.row, endData.col, getItemUp(startData), getItemDown(startData))
+      if(endData != null){
+        drawBackgroundChange("leave", endData.row, endData.col, getItemUp(startData), getItemDown(startData))
+      }
+      
       e.preventDefault();
     };
 
@@ -414,7 +447,8 @@ export default {
           value.url = startData.swap
         }
         else {
-          value.url = SolidCircle
+          value.url = SolidCircle;
+          value.order = orderStatic - nContr;
         }
 
         for (let row = 0; row < bglist.length; row++) {
@@ -486,9 +520,11 @@ export default {
       nextTick(() => {
         spliceDoubleArr(100, bgRef._rawValue);
       });
+      initMaxMap();
     });
     return {
       clickStatus,
+      orderStatic,
       dragStart,
       dragOver,
       dragend,
