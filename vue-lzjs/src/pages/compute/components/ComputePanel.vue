@@ -221,6 +221,58 @@ export default {
       des.param = src?.param;
       des.order = src.order;
     }
+
+    const isDragable = (src, des) => {
+      let up = getItemUp(src)
+      let down = getItemDown(src)
+      let endRow = des.row
+      let bResult = false;
+      console.log(endRow)
+      console.log(up)
+      console.log(down)
+      console.log(endRow + down)
+      if (endRow + up >= 0 && endRow + down < bglist.length) {
+        bResult = true;
+      }
+      return bResult;
+    }
+    const switchData = () => {
+      bglist[endData.row][endData.col].attach = startData?.attach;
+      let up = getItemUp(startData)
+      let down = getItemDown(startData)
+      let col = endData.col
+      let arrRow = convertAttac2Col(startData?.attach, endData.row)
+      let endRow = endData.row
+
+      for (let nRow = Number(endRow) + Number(up); nRow <= Number(endRow) + Number(down); nRow++) {
+        if (nRow >= Number(endRow) + Number(up) && nRow <= Number(endRow) + Number(down)) {
+
+          bglist[nRow][col].id = idCount;
+          if (nRow == endData.row) {
+            bglist[nRow][col].url = startData.url;
+            bglist[nRow][col].drag = true;
+            bglist[nRow][col].type = endData?.type;
+            bglist[nRow][col].param = endData?.param;
+          }
+          else {
+            if (arrRow.includes(nRow)) {
+              if (startData.hasOwnProperty('swap')) {
+                bglist[nRow][col].url = startData.swap;
+                bglist[nRow][col].swap = startData.swap;
+              }
+              else {
+                bglist[nRow][col].url = SolidCircle;
+              }
+              bglist[nRow][col].drag = false;
+            }
+            else {
+              bglist[nRow][col].url = VerticalLine;
+              bglist[nRow][col].drag = false;
+            }
+          }
+        }
+      }
+    }
     const setDragDes = (fromData) => {
       if ('menu' == fromData) {
         if ('control' in startData) {
@@ -231,41 +283,7 @@ export default {
         }
       }
       if ('form' == fromData) {
-        bglist[endData.row][endData.col].attach = startData?.attach;
-        let up = getItemUp(startData)
-        let down = getItemDown(startData)
-        let col = endData.col
-        let arrRow = convertAttac2Col(startData?.attach, endData.row)
-        let endRow = endData.row
-
-        for (let nRow = Number(endRow) + Number(up); nRow <= Number(endRow) + Number(down); nRow++) {
-          if (nRow >= Number(endRow) + Number(up) && nRow <= Number(endRow) + Number(down)) {
-            bglist[nRow][col].id = idCount;
-            if (nRow == endData.row) {
-              bglist[nRow][col].url = startData.url;
-              bglist[nRow][col].drag = true;
-              bglist[nRow][col].type = endData?.type;
-              bglist[nRow][col].param = endData?.param;
-            }
-            else {
-              if (arrRow.includes(nRow)) {
-                if (startData.hasOwnProperty('swap')) {
-                  bglist[nRow][col].url = startData.swap;
-                  bglist[nRow][col].swap = startData.swap;
-                }
-                else {
-                  bglist[nRow][col].url = SolidCircle;
-                }
-                bglist[nRow][col].drag = false;
-              }
-              else {
-                bglist[nRow][col].url = VerticalLine;
-                bglist[nRow][col].drag = false;
-              }
-            }
-          }
-        }
-        ++idCount;
+        switchData()
       }
     }
 
@@ -354,15 +372,14 @@ export default {
       for (let col = item.col; col > 0; col--) {
         let bResult = true;
         for (let row = item.row - codition.up; row <= Number(item.row) + Number(codition.down); row++) {
-          if (item.col > 0 && row < bglist.length && bglist[row][item.col - 1 -nStep].url != LineBg) {
+          if (item.col > 0 && row < bglist.length && bglist[row][item.col - 1 - nStep].url != LineBg) {
             bResult = false;
             break;
           }
         }
-        if(bResult){
+        if (bResult) {
           ++nStep;
         }
-
       }
       return nStep;
     }
@@ -397,7 +414,7 @@ export default {
               let bisFrontItemBlank = isFrontItemBlank(bglist[row][col], currentItemScope)
               let step = getFrontItemStep(bglist[row][col], currentItemScope)
               if (bisFrontItemBlank) {
-                moveFrontItem(bglist[row][col], currentItemScope,--step)
+                moveFrontItem(bglist[row][col], currentItemScope, --step)
               }
             }
           }
@@ -416,11 +433,15 @@ export default {
         }
       }
       else {
-        setDragSrc(true);
-        moveCol(endData);
+        let bDrag = isDragable(startData, endData);
+        if (bDrag) {
+          setDragSrc(true);
+          moveCol(endData)
 
-        setDragDes(dataFrom);
-        clearBlank();
+          setDragDes(dataFrom);
+          clearBlank();
+        }
+
       }
       if (endData != null) {
         drawBackgroundChange("leave", endData.row, endData.col, getItemUp(startData), getItemDown(startData))
