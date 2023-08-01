@@ -106,7 +106,7 @@ export default {
       for (let row = 0; row < Qubits; row++) {
         let imgRow = [];
         for (let col = 0; col < QubitsLineDepth; col++) {
-          imgRow.push(createBasicQubit(-1, row, col,false, false, LineBg, false, null, -1, -1, []))
+          imgRow.push(createBasicQubit(-1, row, col, false, false, LineBg, false, null, -1, -1, []))
         }
         if (imgRow.length > 0) {
           bglist.push(imgRow);
@@ -182,7 +182,7 @@ export default {
     }
     const setDragSrc = (bClear) => {
       if (bClear) {
-        let col = Number(startData.col) 
+        let col = Number(startData.col)
         for (let nRow = 0; nRow < bglist.length; nRow++) {
           if (nRow >= Number(startData.row) + Number(getItemUp(startData)) && nRow <= Number(startData.row) + Number(getItemDown(startData))) {
             bglist[nRow][col].url = LineBg;
@@ -210,7 +210,7 @@ export default {
       bglist[row][col].type = endData?.type;
       bglist[row][col].param = endData?.param;
     }
-    const copyData = (src,des) => {
+    const copyData = (src, des) => {
       des.id = src.id;
       des.click = src.click;
       des.major = src.major;
@@ -295,7 +295,7 @@ export default {
         let itemRow = bglist[row]
         itemRow.pop()
         let major = false;
-        if(row == value.row){
+        if (row == value.row) {
           major = true;
         }
         let item = createBasicQubit(-1, row, value.col, major, false, LineBg, false, null, -1, -1, []);
@@ -336,24 +336,40 @@ export default {
     const getCurrentItemScope = (item) => {
       let up = 0;
       let down = 0;
- 
-      for(let row = 0; row < bglist.length; row++){
-        if(bglist[row][item.col].id == item.id && item.id != -1){
-          if(row < item?.row){
+
+      for (let row = 0; row < bglist.length; row++) {
+        if (bglist[row][item.col].id == item.id && item.id != -1) {
+          if (row < item?.row) {
             ++up;
           }
-          if(row > item?.row){
+          if (row > item?.row) {
             ++down;
           }
         }
       }
-      return {'up':up,'down':down};
+      return { 'up': up, 'down': down };
     }
+    const getFrontItemStep = (item, codition) => {
+      let nStep = 0;
+      for (let col = item.col; col > 0; col--) {
+        let bResult = true;
+        for (let row = item.row - codition.up; row <= Number(item.row) + Number(codition.down); row++) {
+          if (item.col > 0 && row < bglist.length && bglist[row][item.col - 1 -nStep].url != LineBg) {
+            bResult = false;
+            break;
+          }
+        }
+        if(bResult){
+          ++nStep;
+        }
 
-    const isFrontItemBlank = (item,conditon) => {
+      }
+      return nStep;
+    }
+    const isFrontItemBlank = (item, codition) => {
       let bResult = true;
-      for(let row = item.row - conditon.up ; row <= Number(item.row) + Number(conditon.down) ; row++){
-        if(item.col > 0 && row < bglist.length && bglist[row][item.col - 1].url != LineBg){
+      for (let row = item.row - codition.up; row <= Number(item.row) + Number(codition.down); row++) {
+        if (item.col > 0 && row < bglist.length && bglist[row][item.col - 1].url != LineBg) {
           bResult = false;
           break;
         }
@@ -361,11 +377,11 @@ export default {
       return bResult;
     }
 
-    const moveFrontItem = (item,conditon) => {
-      for(let row = item.row; row <= item.row + conditon.down + conditon.up; row++){
+    const moveFrontItem = (item, codition, step) => {
+      for (let row = item.row; row <= item.row + codition.down + codition.up; row++) {
 
-        if(row < bglist.length && bglist[row][item.col - 1].url == LineBg){
-          copyData(bglist[row][item.col],bglist[row][item.col - 1])
+        if (row < bglist.length && bglist[row][item.col - 1].url == LineBg) {
+          copyData(bglist[row][item.col], bglist[row][item.col - 1 - step])
           clearDrc(bglist[row][item.col]);
         }
       }
@@ -373,17 +389,16 @@ export default {
 
     const clearBlank = () => {
       for (let col = 0; col < QubitsLineDepth; col++) {
-      for (let row = 0; row < bglist.length; row++) {    
+        for (let row = 0; row < bglist.length; row++) {
           if (bglist[row][col].url != LineBg) {
             if (col > 0 && bglist[row][col - 1].url == LineBg) {
               //1判断整体占用几个  
               let currentItemScope = getCurrentItemScope(bglist[row][col]);
-              let bisFrontItemBlank = isFrontItemBlank(bglist[row][col],currentItemScope)
-              if(bisFrontItemBlank)
-              {
-                moveFrontItem(bglist[row][col],currentItemScope)
+              let bisFrontItemBlank = isFrontItemBlank(bglist[row][col], currentItemScope)
+              let step = getFrontItemStep(bglist[row][col], currentItemScope)
+              if (bisFrontItemBlank) {
+                moveFrontItem(bglist[row][col], currentItemScope,--step)
               }
-
             }
           }
         }
@@ -396,18 +411,16 @@ export default {
         moveCol(endData);
         setDragSrc(false);
         setDragDes(dataFrom);
-        if(!startData.hasOwnProperty('control')){
+        if (!startData.hasOwnProperty('control')) {
           clearBlank();
-        }      
+        }
       }
       else {
         setDragSrc(true);
         moveCol(endData);
-        
+
         setDragDes(dataFrom);
-        if(!startData.hasOwnProperty('control')){
-          clearBlank();
-        }  
+        clearBlank();
       }
       if (endData != null) {
         drawBackgroundChange("leave", endData.row, endData.col, getItemUp(startData), getItemDown(startData))
