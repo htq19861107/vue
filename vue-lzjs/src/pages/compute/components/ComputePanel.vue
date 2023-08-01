@@ -67,23 +67,27 @@ export default {
     let doubleRef = ref([]); // dom二维数组
     let positionMaxMap = new Map();
 
-    const createBasicQubit = (id, row, col, drag, url, click, type, order, param) => {
+    let idCount = 0;
+
+
+    const createBasicQubit = (id, row, col, major, drag, url, click, type, order, param, attachArray) => {
       let obj = {
         id: id,
         row: row,
         col: col,
+        major: major,
         drag: drag,
         url: url,
         click: click,
         type: type,//类型
         order: order,//根据顺序来确定门的执行顺序，主要为门设计，如果相同则为交换门
-        param: param,//是否有参数设置
-        attach: []//{position:-1,url:url}
+        param: param,//是否有参数设置 
+        attach: attachArray//{position:-1,url:url}
       }
       return obj;
     }
     const getItemDown = (item) => {
-      if (item.hasOwnProperty('attach')) {
+      if (item?.attach) {
         let max = Math.max(...item.attach);
         return max > 0 ? max : 0;
       } else {
@@ -91,7 +95,7 @@ export default {
       }
     }
     const getItemUp = (item) => {
-      if (item.hasOwnProperty('attach')) {
+      if (item?.attach) {
         let min = Math.min(...item.attach);
         return min < 0 ? min : 0;
       } else {
@@ -102,7 +106,7 @@ export default {
       for (let row = 0; row < Qubits; row++) {
         let imgRow = [];
         for (let col = 0; col < QubitsLineDepth; col++) {
-          imgRow.push(createBasicQubit(-1, row, col, false, LineBg, false, null, -1, -1))
+          imgRow.push(createBasicQubit(-1, row, col,false, false, LineBg, false, null, -1, -1, []))
         }
         if (imgRow.length > 0) {
           bglist.push(imgRow);
@@ -124,15 +128,12 @@ export default {
     };
     const dragOver = (value, e) => {
       const { row, col } = value;
-      if(col > positionMaxMap.get(row))
-      {
+      if (col > positionMaxMap.get(row)) {
         endData = JSON.parse(JSON.stringify(bglist[row][positionMaxMap.get(row)]));
       }
-      else{
+      else {
         endData = JSON.parse(JSON.stringify(value));
       }
-      
-      
       drawBackgroundChange("access", endData.row, endData.col, getItemUp(startData), getItemDown(startData));
       e.preventDefault();
     };
@@ -140,7 +141,9 @@ export default {
     * 离开背景色改为白色
     */
     const dragLeave = (value, e) => {
-      drawBackgroundChange("leave", endData.row, endData.col, getItemUp(startData), getItemDown(startData));
+      if (endData.hasOwnProperty('row') && endData.hasOwnProperty('col')) {
+        drawBackgroundChange("leave", endData.row, endData.col, getItemUp(startData), getItemDown(startData));
+      }
       e.preventDefault();
     };
     /*** 切割为二维数组*/
@@ -167,214 +170,249 @@ export default {
       if (vaule.hasOwnProperty('attach')) {
         delete vaule.attach;
       }
-    }
-    const setDragSrc = (bMoveBack) => {
-      let col = Number(startData.col) + Number(bMoveBack ? 1 : 0)
-      if (bMoveBack) {
-        col = endData.col < startData.col ? col : --col;
+      if (vaule.hasOwnProperty('url')) {
+        vaule.url = LineBg;
       }
-      for (let nRow = 0; nRow < bglist.length; nRow++) {
-        if (nRow >= Number(startData.row) + Number(getItemUp(startData)) && nRow <= Number(startData.row) + Number(getItemDown(startData))) {
-          bglist[nRow][col].url = LineBg;
-          bglist[nRow][col].drag = false;
-          clearDrc(bglist[nRow][col])
+      if (vaule.hasOwnProperty('id')) {
+        vaule.id = -1;
+      }
+      if (vaule.hasOwnProperty('major')) {
+        vaule.major = false;
+      }
+    }
+    const setDragSrc = (bClear) => {
+      if (bClear) {
+        let col = Number(startData.col) 
+        for (let nRow = 0; nRow < bglist.length; nRow++) {
+          if (nRow >= Number(startData.row) + Number(getItemUp(startData)) && nRow <= Number(startData.row) + Number(getItemDown(startData))) {
+            bglist[nRow][col].url = LineBg;
+            bglist[nRow][col].drag = false;
+            clearDrc(bglist[nRow][col])
+          }
         }
       }
     }
     const convertAttac2Col = (attach, row) => {
-      let arr = attach.map((item) => { return row + item })
-      return arr
+      if (attach != undefined) {
+        return attach.map((item) => { return row + item })
+      }
+      else {
+        return []
+      }
     }
-    const setDragDes = () => {
-      bglist[endData.row][endData.col].attach = startData.attach;
-      let up = getItemUp(startData)
-      let down = getItemDown(startData)
-      let col = endData.col
-      let arrRow = convertAttac2Col(startData.attach, endData.row)
-      let endRow = endData.row
-      for (let nRow = Number(endRow) + Number(up); nRow <= Number(endRow) + Number(down); nRow++) {
-        if (nRow >= Number(endRow) + Number(up) && nRow <= Number(endRow) + Number(down)) {
-          if (arrRow.includes(nRow)) {
-            if (startData.hasOwnProperty('swap')) {
-              bglist[nRow][col].url = startData.swap;
-              bglist[nRow][col].swap = startData.swap;
+    const setSingleItem = (src, des) => {
+      let col = des.col
+      let row = des.row
+      bglist[row][col].id = ++idCount;
+      bglist[row][des.col].attach = src?.attach;
+      bglist[row][col].url = startData.url;
+      bglist[row][col].drag = true;
+      bglist[row][col].type = endData?.type;
+      bglist[row][col].param = endData?.param;
+    }
+    const copyData = (src,des) => {
+      des.id = src.id;
+      des.click = src.click;
+      des.major = src.major;
+      des.attach = src?.attach;
+      des.url = src.url;
+      des.drag = src.drag;
+      des.type = src?.type;
+      des.param = src?.param;
+      des.order = src.order;
+    }
+    const setDragDes = (fromData) => {
+      if ('menu' == fromData) {
+        if ('control' in startData) {
+          setHollowCircle(endData)
+        }
+        else {
+          setSingleItem(startData, endData)
+        }
+      }
+      if ('form' == fromData) {
+        bglist[endData.row][endData.col].attach = startData?.attach;
+        let up = getItemUp(startData)
+        let down = getItemDown(startData)
+        let col = endData.col
+        let arrRow = convertAttac2Col(startData?.attach, endData.row)
+        let endRow = endData.row
+
+        for (let nRow = Number(endRow) + Number(up); nRow <= Number(endRow) + Number(down); nRow++) {
+          if (nRow >= Number(endRow) + Number(up) && nRow <= Number(endRow) + Number(down)) {
+            bglist[nRow][col].id = idCount;
+            if (nRow == endData.row) {
+              bglist[nRow][col].url = startData.url;
+              bglist[nRow][col].drag = true;
+              bglist[nRow][col].type = endData?.type;
+              bglist[nRow][col].param = endData?.param;
             }
             else {
-              bglist[nRow][col].url = SolidCircle;
+              if (arrRow.includes(nRow)) {
+                if (startData.hasOwnProperty('swap')) {
+                  bglist[nRow][col].url = startData.swap;
+                  bglist[nRow][col].swap = startData.swap;
+                }
+                else {
+                  bglist[nRow][col].url = SolidCircle;
+                }
+                bglist[nRow][col].drag = false;
+              }
+              else {
+                bglist[nRow][col].url = VerticalLine;
+                bglist[nRow][col].drag = false;
+              }
             }
-            bglist[nRow][col].drag = false;
-          }
-          else {
-            bglist[nRow][col].url = VerticalLine;
-            bglist[nRow][col].drag = false;
           }
         }
+        ++idCount;
       }
     }
-    const isMoveBack = (src, des) => {
-      //从最上处拖都移动
-      let bReslt = false;//带control的需要单独开辟一列
-      if (src.hasOwnProperty('control') && endData != null) {
-        let row = 0
-        while (row < bglist.length) {
-          if (bglist[row][endData.col].url != LineBg) {
-            bReslt = true;
-            return bReslt;
-          }
-          ++row;
-        }
-      }
-      bReslt = isOverlap()
-      //判断是否重叠,与其他重叠？
-      // let startArr = []
-      // let endArr = []
-      // for (let nRet = 0; nRet < bglist.length; nRet++) {
-      //   if (nRet >= Number(startData.row) + Number(getItemUp(startData)) && nRet <= Number(startData.row) + Number(getItemDown(startData))) {
-      //     startArr.push(nRet)
-      //   }
-      // }
-      // for (let nRet = 0; nRet < bglist.length; nRet++) {
-      //   if (nRet >= Number(endData.row) + Number(getItemUp(endData)) && nRet <= Number(endData.row) + Number(getItemDown(endData))) {
-      //     endArr.push(nRet)
-      //   }
-      // }
-      // if (startData.col == endData.col) {
-      //   const results = [];
-      //   for (let i = 0; i < endArr.length; i++) {
-      //     if (startArr.includes(endArr[i])) {
-      //       results.push(endArr[i]);
-      //     }
-      //   }
-      //   if (results.length > 0) {
-      //     bReslt = true;
-      //   }
-      // }
-      return bReslt;
-      //跟自己重叠
-    }
+
     const initMaxMap = () => {
-      for(let row = 0; row < bglist.length;row++){
-        positionMaxMap.set(row,0)
+      for (let row = 0; row < bglist.length; row++) {
+        positionMaxMap.set(row, 0)
       }
     }
     const getPositionMaxMap = () => {
-      for(let row = 0; row < bglist.length;row++){
-        for(let col = bglist[row].length - 1;col >= 0;col--){
-          if(bglist[row][col].url !=  LineBg ){
+      for (let row = 0; row < bglist.length; row++) {
+        let col = bglist[row].length - 1;
+        for (; col >= 0; col--) {
+          if (bglist[row][col].url != LineBg) {
             let max = col + 1;
-            positionMaxMap.set(row,max);
+            positionMaxMap.set(row, max);
             break;
           }
         }
+        if (0 > col) {
+          positionMaxMap.set(row, 0);
+        }
       }
     }
-    const isOverlap = () => {
-      let bReslt = false;
-      let up = getItemUp(startData)
-      let down = getItemDown(startData)
-      let col = endData.col
-      let row = endData.row
-      for (let nRet = Number(row) + Number(up); nRet <= Number(row) + Number(down); nRet++) {
-        if (bglist[nRet][col].url != LineBg) {
-          bReslt = true;  
+
+    const moveCol = (value) => {
+      for (let row = 0; row < bglist.length; row++) {
+        let itemRow = bglist[row]
+        itemRow.pop()
+        let major = false;
+        if(row == value.row){
+          major = true;
+        }
+        let item = createBasicQubit(-1, row, value.col, major, false, LineBg, false, null, -1, -1, []);
+        itemRow.splice(value.col, 0, item)
+        for (let col = 0; col < itemRow.length; col++) {
+          if (value.col < col) {
+            ++itemRow[col].col
+          }
+        }
+      }
+      nextTick(() => {
+        spliceDoubleArr(100, bgRef._rawValue);
+      });
+    }
+
+    const setHollowCircle = (endData) => {
+      let col = endData.col;
+      ++idCount;
+      for (let row = 0; row < bglist.length; row++) {
+        bglist[row][col].id = idCount;
+        if (row == endData.row) {
+          bglist[row][col].url = startData.url;
+          bglist[row][col].drag = true;
+          bglist[row][col].type = endData?.type;
+          bglist[row][col].param = endData?.param;
+          bglist[row][col].major = true;
+        }
+        if (endData.row != row) {
+          bglist[row][col].url = HollowCircle;
+          bglist[row][col].click = true;
+          bglist[row][col].drag = false;
+          bglist[row][col].control = startData.control;
+        }
+      }
+      clickStatus = startData.control;
+      orderStatic = clickStatus
+    }
+    const getCurrentItemScope = (item) => {
+      let up = 0;
+      let down = 0;
+ 
+      for(let row = 0; row < bglist.length; row++){
+        if(bglist[row][item.col].id == item.id && item.id != -1){
+          if(row < item?.row){
+            ++up;
+          }
+          if(row > item?.row){
+            ++down;
+          }
+        }
+      }
+      return {'up':up,'down':down};
+    }
+
+    const isFrontItemBlank = (item,conditon) => {
+      let bResult = true;
+      for(let row = item.row - conditon.up ; row <= Number(item.row) + Number(conditon.down) ; row++){
+        if(item.col > 0 && row < bglist.length && bglist[row][item.col - 1].url != LineBg){
+          bResult = false;
           break;
         }
       }
-      return bReslt;
-    }
-    const isOverlapSelf = () => {
-      let bReslt = false;
-      if (endData == null) {
-        return bReslt
-      }
-      let startArr = []
-      let endArr = []
-      for (let nRet = 0; nRet < bglist.length; nRet++) {
-        if (nRet >= Number(startData.row) + Number(getItemUp(startData)) && nRet <= Number(startData.row) + Number(getItemDown(startData))) {
-          startArr.push(nRet)
-        }
-      }
-      for (let nRet = 0; nRet < bglist.length; nRet++) {
-        if (nRet >= Number(endData.row) + Number(getItemUp(endData)) && nRet <= Number(endData.row) + Number(getItemDown(endData))) {
-          endArr.push(nRet)
-        }
-      }
-      if (startData.col == endData.col) {
-        const results = [];
-        for (let i = 0; i < endArr.length; i++) {
-          if (startArr.includes(endArr[i])) {
-            results.push(endArr[i]);
-          }
-        }
-        if (results.length > 0) {
-          bReslt = true;
-        }
-      }
-      return bReslt;
+      return bResult;
     }
 
-    const dragend = (item, e) => {
-      let bCanMove = isCanMove(startData, endData)
-      let bMoveBack = isMoveBack(startData, endData)
-      if (item != null && bCanMove) {
-        const bDrag = startData.drag;
-        if ('paramSet' in startData) {
-          bglist[endData.row][endData.col].paramSet = startData.paramSet;
+    const moveFrontItem = (item,conditon) => {
+      for(let row = item.row; row <= item.row + conditon.down + conditon.up; row++){
+
+        if(row < bglist.length && bglist[row][item.col - 1].url == LineBg){
+          copyData(bglist[row][item.col],bglist[row][item.col - 1])
+          clearDrc(bglist[row][item.col]);
         }
-        /*多个图片移动数据交换*/
-        let bOverlapSelf = isOverlapSelf();
-        if (bMoveBack) {
-          for (let row = 0; row < bglist.length; row++) {
-            let itemRow = bglist[row]
-            itemRow.pop()
-            let item = createBasicQubit(-1, row, endData.col, false, LineBg, false, null, -1, -1);
-            itemRow.splice(endData.col, 0, item)
-            for (let col = 0; col < itemRow.length; col++) {
-              if (endData.col < col) {
-                ++itemRow[col].col
-              }
-            }
-          }
-          nextTick(() => {
-            spliceDoubleArr(100, bgRef._rawValue);
-          });
-        }
-        if (bDrag) {
-          setDragSrc(bMoveBack);
-          setDragDes();
-        }
-        //拖拽完为需要配置的门
-        if (endData != null) {
-          if ('control' in startData && startData.control > 0) {
-            for (let row = 0; row < bglist.length; row++) {
-              if (endData.row !== row) {
-                bglist[row][endData.col].url = HollowCircle;
-                bglist[row][endData.col].click = true;
-                bglist[row][endData.col].drag = false;
-                bglist[row][endData.col].control = startData.control;
-              }
-            }
-            clickStatus = startData.control;
-            orderStatic = clickStatus
-          }
-          if ('control' in startData && startData.control > 0) {
-            bglist[endData.row][endData.col].url = startData.url;
-            bglist[endData.row][endData.col].drag = false;
-          }
-          else {
-            bglist[endData.row][endData.col].url = startData.url;
-            bglist[endData.row][endData.col].drag = true;
-          }
-          if ('swap' in startData) {
-            bglist[endData.row][endData.col].swap = startData.swap;
-          }
-        }
-        /*清除背景*/
       }
-      if(endData != null){
+    }
+
+    const clearBlank = () => {
+      for (let col = 0; col < QubitsLineDepth; col++) {
+      for (let row = 0; row < bglist.length; row++) {    
+          if (bglist[row][col].url != LineBg) {
+            if (col > 0 && bglist[row][col - 1].url == LineBg) {
+              //1判断整体占用几个  
+              let currentItemScope = getCurrentItemScope(bglist[row][col]);
+              let bisFrontItemBlank = isFrontItemBlank(bglist[row][col],currentItemScope)
+              if(bisFrontItemBlank)
+              {
+                moveFrontItem(bglist[row][col],currentItemScope)
+              }
+
+            }
+          }
+        }
+      }
+    }
+    const dragend = (item, e) => {
+      // 1、判断是否来自菜单栏    
+      let dataFrom = 'tooltip' in startData ? 'menu' : 'form';
+      if ('menu' == dataFrom) {
+        moveCol(endData);
+        setDragSrc(false);
+        setDragDes(dataFrom);
+        if(!startData.hasOwnProperty('control')){
+          clearBlank();
+        }      
+      }
+      else {
+        setDragSrc(true);
+        moveCol(endData);
+        
+        setDragDes(dataFrom);
+        if(!startData.hasOwnProperty('control')){
+          clearBlank();
+        }  
+      }
+      if (endData != null) {
         drawBackgroundChange("leave", endData.row, endData.col, getItemUp(startData), getItemDown(startData))
       }
-      
+
       e.preventDefault();
     };
 
@@ -384,6 +422,7 @@ export default {
         access: "gray", // 鼠标移入背景
         leave: "white", // 鼠标离开背景
       };
+
       for (let nRow = 0; nRow < bglist.length; nRow++) {
         if (nRow >= Number(row) + Number(up) && nRow <= Number(row) + Number(down)) {
           doubleRef._rawValue[nRow][col].style.background = colorMap[type];
@@ -417,7 +456,7 @@ export default {
       const nlen = bglist.length;
       let bgCol = [];
       for (let iCol = 0; iCol < QubitsLineDepth; iCol++) {
-        let objBg = createBasicQubit(-1, nlen, iCol, false, LineBg, false, null, -1, -1);
+        let objBg = createBasicQubit(-1, nlen, iCol, false, false, LineBg, false, null, -1, -1, []);
         bgCol.push(objBg);
       }
       bglist.push(bgCol);
@@ -445,10 +484,12 @@ export default {
       if ('click' in value && value.click) {
         if (startData.hasOwnProperty('swap')) {
           value.url = startData.swap
+          value.id = idCount;
         }
         else {
           value.url = SolidCircle;
           value.order = orderStatic - nContr;
+          value.id = idCount;
         }
 
         for (let row = 0; row < bglist.length; row++) {
@@ -463,20 +504,22 @@ export default {
       bglist[endData.row][endData.col].attach = bglist[endData.row][endData.col].attach.sort((a, b) => { return a - b })
       let up = getItemUp(bglist[endData.row][endData.col])
       let down = getItemDown(bglist[endData.row][endData.col])
+
       if (value.control === 0) {
         for (let row = 0; row < bglist.length; row++) {
           if (value.row !== row && bglist[row][value.col].url === HollowCircle) {
             if ((Number(endData.row) + Number(up) <= row) && (Number(endData.row) + Number(down) >= row)) {
               bglist[row][value.col].url = VerticalLine
               bglist[row][value.col].click = false;
+              bglist[row][value.col].id = idCount;
             }
             else {
-              bglist[row][value.col].url = LineBg;
-              bglist[row][value.col].click = false;
+              clearDrc(bglist[row][value.col])
             }
           }
         }
         bglist[endData.row][endData.col].drag = true;
+        clearBlank()
       }
     };
     /*** 删除跟增加* @param { String } type add 增加 reduce 减少*/
@@ -487,7 +530,7 @@ export default {
           () => {
             let newImgArr = [];
             for (let iCol = 0; iCol < QubitsLineDepth; iCol++) {
-              newImgArr.push(createBasicQubit(-1, bglist.length, iCol, false, LineBg, false, null, -1, -1));
+              newImgArr.push(createBasicQubit(-1, bglist.length, iCol, false, false, LineBg, false, null, -1, -1, []));
             }
             bgRef.value = [];
             bglist.push(newImgArr);
