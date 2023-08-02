@@ -24,11 +24,19 @@
           </el-icon>
           <span class="svgbg" v-for="(item, indexCol) in itemRow" :key="indexCol" :ref="el => handleRef(el, item)"
             @dragstart="dragStart(item)" @dragover="dragOver(item, $event)" @dragend="dragend(item, $event)"
-            @click="judgClick(item)" @dragleave="dragLeave(item, $event)">
+            @click="judgClick(item)" @dragleave="dragLeave(item, $event)"
+            @contextmenu.prevent.stop="showMenu(item, $event)">
             <img :src="item.url" :draggable="item.drag" />
             <computeParamSet v-if="paramShow" />
             <ShowMsg v-if="show" :message="toastMessage" />
           </span>
+          <div v-show="isShowMenu" class="menu_box" :style="{ 'left': menuLeft + 'px', 'top': menuTop + 'px' }">
+            <div class="menu">
+              <div class="menu_item item_text" @click.stop="deleteItem()">删除</div>
+              <div class="menu_item item_text" @click.stop="cutItem()">剪切</div>
+              <div class="menu_item item_text" @click.stop="copyItem()">复制</div>
+            </div>
+          </div>
         </div>
         <el-icon @click.stop="changeImgList('add')">
           <CirclePlus />
@@ -68,8 +76,25 @@ export default {
     let positionMaxMap = new Map();
 
     let idCount = 0;
+    const isShowMenu = ref(false) // 控制是否显示右键菜单
+    const menuLeft = ref(0)
+    const menuTop = ref(0)
+    // 关闭菜单
+    const clockMenu = () => {
+      isShowMenu.value = false
+    }
 
+    const showMenu = (item, e) => {
+      isShowMenu.value = true
+      menuLeft.value = e.pageX
+      menuTop.value = e.pageY
+      console.log(e.pageX)
+      console.log(e.pageY)
+      console.log(isShowMenu)
+    }
+    const deleteItem = () => {
 
+    }
     const createBasicQubit = (id, row, col, major, drag, url, click, type, order, param, attachArray) => {
       let obj = {
         id: id,
@@ -598,7 +623,7 @@ export default {
         spliceDoubleArr(100, bgRef._rawValue);
       });
       initMaxMap();
-    });
+    });   
     return {
       clickStatus,
       orderStatic,
@@ -620,6 +645,11 @@ export default {
       paramShow,
       show,
       toastMessage,
+      showMenu,
+      deleteItem,
+      isShowMenu,
+      menuLeft,
+      menuTop
     };
   },
 };
@@ -706,9 +736,43 @@ export default {
         .svgbg {
           width: 32px;
           height: 32px;
+          border: 2px solid rgb(233, 24, 24);
 
           img {
             margin: 0 0px 0 0;
+          }
+
+        }
+
+        .menu_box {
+          position: fixed;
+          z-index: 999;
+          background-color: #fff;
+
+          // border-radius: 5px;
+          .menu {
+            width: 100px;
+            text-align: left;
+            // padding: 5px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+
+            .menu_item {
+              height: 24px;
+              line-height: 22px;
+              // margin-top: 5px;
+            }
+
+            .item_text {
+              color: #171A1D;
+              cursor: pointer;
+              padding: 4px 20px;
+              // border-radius: 3px;
+              transition: all .2s ease-in;
+            }
+
+            .item_text:hover {
+              background-color: #E9EAEC;
+            }
           }
         }
       }
