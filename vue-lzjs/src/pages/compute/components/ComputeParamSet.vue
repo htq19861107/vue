@@ -1,6 +1,6 @@
 <template>
-    <div class="paramSet">
-        show paramSet
+    <div class="param">
+        show param
     </div>
 </template>
   
@@ -9,21 +9,19 @@
 
 
 export default {
-    name: "computeParamSet",
+    name: "computeParam",
     setup() {
     }
 }
 </script>
   
 <style lang="scss" scoped>
-.paramSet{
-    position: relative;
-    left:0px;
-    top:0px;
+.param{
+    position: fix;
     border: 1px solid rgb(128, 19, 161);
     width: 400px;
     height: 400px;
-    z-index: 9999;
+    z-index: 999;
 }
 </style>
   

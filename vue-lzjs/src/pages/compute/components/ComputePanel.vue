@@ -3,7 +3,8 @@
     <div class="dragicon" tag="ul" key="transition">
       <span class="quantumGates" v-for="(item, index) in imglist" :key="index">
         <el-tooltip placement="top">
-          <img :src="item.url" :draggable="item.drag" @dragstart="dragStart(item)" @dragend="dragend(item, $event)" />
+          <img :src="item.url" :draggable="item.drag" @dragstart="dragStart(item)" @dragend="dragend(item, $event)"
+            @click="clickHeader" />
           <template v-slot:content>
             <div class="tooltip-content">
               <p>{{ item.tooltip }}</p>
@@ -24,11 +25,21 @@
           </el-icon>
           <span class="svgbg" v-for="(item, indexCol) in itemRow" :key="indexCol" :ref="el => handleRef(el, item)"
             @dragstart="dragStart(item)" @dragover="dragOver(item, $event)" @dragend="dragend(item, $event)"
-            @click="judgClick(item)" @dragleave="dragLeave(item, $event)"
+            @click="judgClick(item, $event)" @dragleave="dragLeave(item, $event)"
             @contextmenu.prevent.stop="showMenu(item, $event)">
             <img :src="item.url" :draggable="item.drag" />
-            <computeParamSet v-if="paramShow" />
             <ShowMsg v-if="show" :message="toastMessage" />
+            <div v-show="isShowParam" class="itemParam" :style="{ 'left': menuLeft + 'px', 'top': menuTop + 'px' }">
+              <div>参数设置</div>
+              <div>{{param}}</div>
+              <el-divider border-style="double" />
+              <el-input v-model="paramInfo" type="textarea" :rows="3"
+                placeholder="请输入一个数学表达式，可以包括PI，不包含括号，运算符包括'+-*/'(弧度制)" readonly="true" />
+              <span class="paraItem" v-for="(tes,index) in param" :key="index">
+                <div>表达式{{index}}</div>
+                <!-- <el-input v-model="param[index].value" type="text" /> -->
+              </span>
+            </div>
           </span>
           <div v-show="isShowMenu" class="menu_box" :style="{ 'left': menuLeft + 'px', 'top': menuTop + 'px' }">
             <div class="menu">
@@ -47,16 +58,14 @@
 </template>
 
 <script>
-import { reactive, onMounted, ref, nextTick } from "vue";
+import { reactive, onMounted, ref, nextTick,toRefs } from "vue";
 import { useStore } from "vuex";
 import { imgGate, initParam } from "../../../config/baseConfig";
-import computeParamSet from "../components/ComputeParamSet"
 import ShowMsg, { useToastEffect } from "../../../components/ShowMsg"
 
 export default {
   name: "computePanel",
   components: {
-    computeParamSet,
     ShowMsg
   },
   setup() {
@@ -74,24 +83,47 @@ export default {
     let bgRef = ref([]);
     let doubleRef = ref([]); // dom二维数组
     let positionMaxMap = new Map();
+    let paramInfo = ref('')
+    let param = toRefs([])
 
     let idCount = 0;
     const isShowMenu = ref(false) // 控制是否显示右键菜单
+    const isShowParam = ref(false) // 控制是否显示参数菜单
     const menuLeft = ref(0)
     const menuTop = ref(0)
+    const clickHeader = () => {
+      closeParam();
+      closeMenu();
+    }
     // 关闭菜单
-    const clockMenu = () => {
+    const closeMenu = () => {
       isShowMenu.value = false
     }
 
     const showMenu = (item, e) => {
-      isShowMenu.value = true
-      menuLeft.value = e.pageX
-      menuTop.value = e.pageY
-      console.log(e.pageX)
-      console.log(e.pageY)
-      console.log(isShowMenu)
+      closeParam();
+      closeMenu();
+      if (item.id != -1) {
+        isShowMenu.value = true
+        menuLeft.value = e.pageX
+        menuTop.value = e.pageY
+      }
     }
+
+    const closeParam = () => {
+      isShowParam.value = false
+    }
+
+    const showParam = (item, e) => {
+      closeMenu();
+      closeParam();
+      if (item.param != undefined && item?.param.length > 0) {
+        param =item.param;    
+        menuLeft.value = e.pageX
+        menuTop.value = e.pageY
+        isShowParam.value = true;
+      }
+    };
     const deleteItem = () => {
 
     }
@@ -131,7 +163,7 @@ export default {
       for (let row = 0; row < Qubits; row++) {
         let imgRow = [];
         for (let col = 0; col < QubitsLineDepth; col++) {
-          imgRow.push(createBasicQubit(-1, row, col, false, false, LineBg, false, null, -1, -1, []))
+          imgRow.push(createBasicQubit(-1, row, col, false, false, LineBg, false, null, -1, [], []))
         }
         if (imgRow.length > 0) {
           bglist.push(imgRow);
@@ -166,7 +198,7 @@ export default {
     * 离开背景色改为白色
     */
     const dragLeave = (value, e) => {
-      if (endData.hasOwnProperty('row') && endData.hasOwnProperty('col')) {
+      if (endData != null && endData.hasOwnProperty('row') && endData.hasOwnProperty('col')) {
         drawBackgroundChange("leave", endData.row, endData.col, getItemUp(startData), getItemDown(startData));
       }
       e.preventDefault();
@@ -186,8 +218,8 @@ export default {
       if (vaule.hasOwnProperty('control')) {
         delete vaule.control;
       }
-      if (vaule.hasOwnProperty('paramSet')) {
-        delete vaule.paramSet;
+      if (vaule.hasOwnProperty('param')) {
+        delete vaule.param;
       }
       if (vaule.hasOwnProperty('swap')) {
         delete vaule.swap;
@@ -232,8 +264,8 @@ export default {
       bglist[row][des.col].attach = src?.attach;
       bglist[row][col].url = startData.url;
       bglist[row][col].drag = true;
-      bglist[row][col].type = endData?.type;
-      bglist[row][col].param = endData?.param;
+      bglist[row][col].type = startData?.type;
+      bglist[row][col].param = startData?.param;
     }
     const copyData = (src, des) => {
       des.id = src.id;
@@ -252,10 +284,7 @@ export default {
       let down = getItemDown(src)
       let endRow = des.row
       let bResult = false;
-      console.log(endRow)
-      console.log(up)
-      console.log(down)
-      console.log(endRow + down)
+
       if (endRow + up >= 0 && endRow + down < bglist.length) {
         bResult = true;
       }
@@ -338,10 +367,10 @@ export default {
         let itemRow = bglist[row]
         itemRow.pop()
         let major = false;
-        if (row == value.row) {
+        if (row == value?.row) {
           major = true;
         }
-        let item = createBasicQubit(-1, row, value.col, major, false, LineBg, false, null, -1, -1, []);
+        let item = createBasicQubit(-1, row, value.col, major, false, LineBg, false, null, -1, [], []);
         itemRow.splice(value.col, 0, item)
         for (let col = 0; col < itemRow.length; col++) {
           if (value.col < col) {
@@ -515,19 +544,18 @@ export default {
       const nlen = bglist.length;
       let bgCol = [];
       for (let iCol = 0; iCol < QubitsLineDepth; iCol++) {
-        let objBg = createBasicQubit(-1, nlen, iCol, false, false, LineBg, false, null, -1, -1, []);
+        let objBg = createBasicQubit(-1, nlen, iCol, false, false, LineBg, false, null, -1, [], []);
         bgCol.push(objBg);
       }
       bglist.push(bgCol);
       let rowData = [];
       store.commit("ADDqubitsArray", { rowData });
     };
-    const showFloatParamSet = () => {
-      paramShow = !paramShow;
-    };
-    const judgClick = (item) => {
+
+    const judgClick = (item, e) => {
+      closeMenu();
       if (0 === clickStatus) {
-        showFloatParamSet();
+        showParam(item, e);
       }
       else {
         if ('control' in item) {
@@ -589,7 +617,7 @@ export default {
           () => {
             let newImgArr = [];
             for (let iCol = 0; iCol < QubitsLineDepth; iCol++) {
-              newImgArr.push(createBasicQubit(-1, bglist.length, iCol, false, false, LineBg, false, null, -1, -1, []));
+              newImgArr.push(createBasicQubit(-1, bglist.length, iCol, false, false, LineBg, false, null, -1, [], []));
             }
             bgRef.value = [];
             bglist.push(newImgArr);
@@ -623,7 +651,7 @@ export default {
         spliceDoubleArr(100, bgRef._rawValue);
       });
       initMaxMap();
-    });   
+    });
     return {
       clickStatus,
       orderStatic,
@@ -649,7 +677,11 @@ export default {
       deleteItem,
       isShowMenu,
       menuLeft,
-      menuTop
+      menuTop,
+      isShowParam,
+      clickHeader,
+      paramInfo,
+      param
     };
   },
 };
@@ -742,6 +774,15 @@ export default {
             margin: 0 0px 0 0;
           }
 
+        }
+
+        .itemParam {
+          position: fixed;
+          z-index: 999;
+          background-color: #fff;
+          height: 400px;
+          width: 200px;
+          border: 2px solid rgb(175, 183, 211);
         }
 
         .menu_box {
