@@ -31,21 +31,25 @@
             <ShowMsg v-if="show" :message="toastMessage" />
             <div v-show="isShowParam" class="itemParam" :style="{ 'left': menuLeft + 'px', 'top': menuTop + 'px' }">
               <div>参数设置</div>
-              <div>{{param}}</div>
               <el-divider border-style="double" />
               <el-input v-model="paramInfo" type="textarea" :rows="3"
                 placeholder="请输入一个数学表达式，可以包括PI，不包含括号，运算符包括'+-*/'(弧度制)" readonly="true" />
-              <span class="paraItem" v-for="(tes,index) in param" :key="index">
-                <div>表达式{{index}}</div>
-                <!-- <el-input v-model="param[index].value" type="text" /> -->
+              <span class="paraItem" v-for="(data, index) in param" :key="index">
+                <div>表达式{{ index }}</div>
+                <el-input v-model="param[index]" type="text" @click.stop="">{{ param[index] }}</el-input>
               </span>
+              <el-row class="btn">
+                <el-button type="primary" @click.stop="paramOK(item)">确定</el-button>
+                <el-button type="primary" @click.stop="paramCancell">取消</el-button>
+              </el-row>
             </div>
           </span>
           <div v-show="isShowMenu" class="menu_box" :style="{ 'left': menuLeft + 'px', 'top': menuTop + 'px' }">
             <div class="menu">
-              <div class="menu_item item_text" @click.stop="deleteItem()">删除</div>
-              <div class="menu_item item_text" @click.stop="cutItem()">剪切</div>
-              <div class="menu_item item_text" @click.stop="copyItem()">复制</div>
+              <div class="menu_item item_text" @click.stop="deleteItem">删除</div>
+              <div class="menu_item item_text" @click.stop="cutItem">剪切</div>
+              <div class="menu_item item_text" @click.stop="copyItem">复制</div>
+              <div class="menu_item item_text" @click.stop="pasteItem">粘贴</div>
             </div>
           </div>
         </div>
@@ -58,7 +62,7 @@
 </template>
 
 <script>
-import { reactive, onMounted, ref, nextTick,toRefs } from "vue";
+import { reactive, onMounted, ref, nextTick } from "vue";
 import { useStore } from "vuex";
 import { imgGate, initParam } from "../../../config/baseConfig";
 import ShowMsg, { useToastEffect } from "../../../components/ShowMsg"
@@ -84,49 +88,18 @@ export default {
     let doubleRef = ref([]); // dom二维数组
     let positionMaxMap = new Map();
     let paramInfo = ref('')
-    let param = toRefs([])
+    let param = reactive([])
+    let currentId = -1
+    let itemData = [];
 
     let idCount = 0;
+
     const isShowMenu = ref(false) // 控制是否显示右键菜单
     const isShowParam = ref(false) // 控制是否显示参数菜单
     const menuLeft = ref(0)
     const menuTop = ref(0)
-    const clickHeader = () => {
-      closeParam();
-      closeMenu();
-    }
-    // 关闭菜单
-    const closeMenu = () => {
-      isShowMenu.value = false
-    }
 
-    const showMenu = (item, e) => {
-      closeParam();
-      closeMenu();
-      if (item.id != -1) {
-        isShowMenu.value = true
-        menuLeft.value = e.pageX
-        menuTop.value = e.pageY
-      }
-    }
-
-    const closeParam = () => {
-      isShowParam.value = false
-    }
-
-    const showParam = (item, e) => {
-      closeMenu();
-      closeParam();
-      if (item.param != undefined && item?.param.length > 0) {
-        param =item.param;    
-        menuLeft.value = e.pageX
-        menuTop.value = e.pageY
-        isShowParam.value = true;
-      }
-    };
-    const deleteItem = () => {
-
-    }
+    /*** 单个元素创建*/
     const createBasicQubit = (id, row, col, major, drag, url, click, type, order, param, attachArray) => {
       let obj = {
         id: id,
@@ -143,6 +116,7 @@ export default {
       }
       return obj;
     }
+    /*** 获取attach的最大值*/
     const getItemDown = (item) => {
       if (item?.attach) {
         let max = Math.max(...item.attach);
@@ -151,6 +125,7 @@ export default {
         return 0;
       }
     }
+    /*** 获取attach的最小值*/
     const getItemUp = (item) => {
       if (item?.attach) {
         let min = Math.min(...item.attach);
@@ -159,6 +134,7 @@ export default {
         return 0;
       }
     }
+    /*** 初始化原始数据*/
     const initBglist = () => {
       for (let row = 0; row < Qubits; row++) {
         let imgRow = [];
@@ -183,6 +159,7 @@ export default {
       startData = JSON.parse(JSON.stringify(value));
       getPositionMaxMap()
     };
+    /*** 浮动显示变化*/
     const dragOver = (value, e) => {
       const { row, col } = value;
       if (col > positionMaxMap.get(row)) {
@@ -214,6 +191,7 @@ export default {
       }
       doubleRef.value = newArr;
     };
+    /*** 清除元素值*/
     const clearDrc = (vaule) => {
       if (vaule.hasOwnProperty('control')) {
         delete vaule.control;
@@ -237,18 +215,20 @@ export default {
         vaule.major = false;
       }
     }
-    const setDragSrc = (bClear) => {
-      if (bClear) {
-        let col = Number(startData.col)
-        for (let nRow = 0; nRow < bglist.length; nRow++) {
-          if (nRow >= Number(startData.row) + Number(getItemUp(startData)) && nRow <= Number(startData.row) + Number(getItemDown(startData))) {
-            bglist[nRow][col].url = LineBg;
-            bglist[nRow][col].drag = false;
-            clearDrc(bglist[nRow][col])
-          }
+    /*** 清除拖拽原位置元素*/
+    const setDragSrc = () => {
+      let col = Number(startData.col)
+      for (let nRow = 0; nRow < bglist.length; nRow++) {
+        if (nRow >= Number(startData.row) + Number(getItemUp(startData)) && nRow <= Number(startData.row) + Number(getItemDown(startData))) {
+          bglist[nRow][col].url = LineBg;
+          bglist[nRow][col].drag = false;
+          clearDrc(bglist[nRow][col])
         }
       }
     }
+    /*** 
+     * 
+    */
     const convertAttac2Col = (attach, row) => {
       if (attach != undefined) {
         return attach.map((item) => { return row + item })
@@ -257,6 +237,7 @@ export default {
         return []
       }
     }
+    /*** 设置单个元素属性*/
     const setSingleItem = (src, des) => {
       let col = des.col
       let row = des.row
@@ -267,6 +248,7 @@ export default {
       bglist[row][col].type = startData?.type;
       bglist[row][col].param = startData?.param;
     }
+    /*** 拷贝元素属性*/
     const copyData = (src, des) => {
       des.id = src.id;
       des.click = src.click;
@@ -278,7 +260,7 @@ export default {
       des.param = src?.param;
       des.order = src.order;
     }
-
+    /*** 元素是否可以移动*/
     const isDragable = (src, des) => {
       let up = getItemUp(src)
       let down = getItemDown(src)
@@ -290,6 +272,7 @@ export default {
       }
       return bResult;
     }
+    /*** 拖拽设置元素属性*/
     const switchData = () => {
       bglist[endData.row][endData.col].attach = startData?.attach;
       let up = getItemUp(startData)
@@ -327,6 +310,7 @@ export default {
         }
       }
     }
+    /*** 拖拽情况分类*/
     const setDragDes = (fromData) => {
       if ('menu' == fromData) {
         if ('control' in startData) {
@@ -346,6 +330,7 @@ export default {
         positionMaxMap.set(row, 0)
       }
     }
+
     const getPositionMaxMap = () => {
       for (let row = 0; row < bglist.length; row++) {
         let col = bglist[row].length - 1;
@@ -382,7 +367,7 @@ export default {
         spliceDoubleArr(100, bgRef._rawValue);
       });
     }
-
+    /***设置控制门*/
     const setHollowCircle = (endData) => {
       let col = endData.col;
       ++idCount;
@@ -475,12 +460,12 @@ export default {
         }
       }
     }
+
     const dragend = (item, e) => {
       // 1、判断是否来自菜单栏    
       let dataFrom = 'tooltip' in startData ? 'menu' : 'form';
       if ('menu' == dataFrom) {
         moveCol(endData);
-        setDragSrc(false);
         setDragDes(dataFrom);
         if (!startData.hasOwnProperty('control')) {
           clearBlank();
@@ -489,13 +474,12 @@ export default {
       else {
         let bDrag = isDragable(startData, endData);
         if (bDrag) {
-          setDragSrc(true);
+          setDragSrc();
           moveCol(endData)
 
           setDragDes(dataFrom);
           clearBlank();
         }
-
       }
       if (endData != null) {
         drawBackgroundChange("leave", endData.row, endData.col, getItemUp(startData), getItemDown(startData))
@@ -518,42 +502,15 @@ export default {
       }
     };
 
-    const isCanMove = (src, des) => {
-      // 超出边界
-      let bRet = true;
-      if (src.hasOwnProperty('row')) {
-        if (des.row - src.up < 0 || Number(des.row) + Number(Math.abs(src.down)) >= bglist.length) {
-          bRet = false;
-        }
-      }
-      return bRet;
-    };
     const handleRef = (el, item) => {
       if (el) {
         bgRef.value.push(el);
       }
     };
 
-    const clickRemove = (index) => {
-      if (index > -1) {
-        bglist.splice(index, 1);
-      }
-      store.commit("REMOVEqubitsArray", { index });
-    };
-    const clickAdd = () => {
-      const nlen = bglist.length;
-      let bgCol = [];
-      for (let iCol = 0; iCol < QubitsLineDepth; iCol++) {
-        let objBg = createBasicQubit(-1, nlen, iCol, false, false, LineBg, false, null, -1, [], []);
-        bgCol.push(objBg);
-      }
-      bglist.push(bgCol);
-      let rowData = [];
-      store.commit("ADDqubitsArray", { rowData });
-    };
-
     const judgClick = (item, e) => {
       closeMenu();
+      currentId = item.id;
       if (0 === clickStatus) {
         showParam(item, e);
       }
@@ -566,6 +523,7 @@ export default {
         }
       }
     };
+
     const SetControlGate = (value) => {
       const nContr = value.control;
       if ('click' in value && value.click) {
@@ -609,6 +567,7 @@ export default {
         clearBlank()
       }
     };
+
     /*** 删除跟增加* @param { String } type add 增加 reduce 减少*/
     const changeImgList = (type, index = null) => {
       const imgMap = new Map([
@@ -624,6 +583,8 @@ export default {
             nextTick(() => {
               spliceDoubleArr(100, bgRef._rawValue);
             });
+            let rowData = [];
+            store.commit("ADDqubitsArray", { rowData });
           },
         ],
         [
@@ -637,11 +598,142 @@ export default {
             nextTick(() => {
               spliceDoubleArr(100, bgRef._rawValue);
             });
+            store.commit("REMOVEqubitsArray", { index });
           },
         ],
       ]);
       imgMap.get(type)();
     };
+
+
+    /*************弹出菜单和页面相关函数**********/
+
+    const clickHeader = () => {
+      closeParam();
+      closeMenu();
+    }
+    /*** 关闭弹出的功能菜单*/
+    const closeMenu = () => {
+      isShowMenu.value = false
+    }
+    /*** 显示弹出的功能菜单*/
+    const showMenu = (item, e) => {
+      closeParam();
+      closeMenu();
+      if (item.id != -1) {
+        isShowMenu.value = true
+        menuLeft.value = e.pageX
+        menuTop.value = e.pageY
+      }
+    }
+    /*** 关闭参数页面*/
+    const closeParam = () => {
+      isShowParam.value = false
+    }
+    /*** 修改param参数*/
+    const changeParm = (param) => {
+      for (let row = 0; row < bglist.length; row++) {
+        for (let col = 0; col < bglist[row].length; col++) {
+          if (bglist[row][col].id == currentId) {
+            bglist[row][col].param.splice(0, param.length);
+            bglist[row][col].param.push(...param)
+          }
+        }
+      }
+    }
+    /*** 显示参数页面*/
+    const showParam = (item, e) => {
+      closeMenu();
+      closeParam();
+      if (item.param != undefined && item?.param.length > 0) {
+        param.splice(0, param.length);
+        param.push(...item.param)
+        menuLeft.value = e.pageX
+        menuTop.value = e.pageY
+        isShowParam.value = true;
+        currentId = item.id;
+      }
+    };
+    /*** 删除元素*/
+    const deleteItem = () => {
+      console.log(currentId)
+      for (let row = 0; row < bglist.length; row++) {
+        for (let col = 0; col < bglist[row].length; col++) {
+          if (bglist[row][col].id == currentId) {
+            bglist[row][col].url = LineBg;
+            bglist[row][col].drag = false;
+            clearDrc(bglist[row][col])
+          }
+        }
+      }
+      closeMenu();
+    }
+    /*** 复制元素*/
+    const copyItem = () => {
+      console.log(currentId)
+      itemData.splice(0, itemData.length);
+      for (let row = 0; row < bglist.length; row++) {
+        for (let col = 0; col < bglist[row].length; col++) {
+          if (bglist[row][col].id == currentId) {
+            let obj = createBasicQubit(-1, row, col, false, false, LineBg, false, null, -1, [], []);
+            copyData(bglist[row][col], obj);
+            itemData.push(obj)
+          }
+        }
+      }
+      ++idCount
+      for (let index = 0; index < itemData.length; index++) {
+        itemData[index].id = idCount;
+      }
+      closeMenu();
+    }
+    /*** 剪切元素*/
+    const cutItem = () => {
+      console.log(currentId)
+      itemData.splice(0, itemData.length);
+      for (let row = 0; row < bglist.length; row++) {
+        for (let col = 0; col < bglist[row].length; col++) {
+          if (bglist[row][col].id == currentId) {
+            let obj = createBasicQubit(-1, row, col, false, false, LineBg, false, null, -1, [], []);
+            copyData(bglist[row][col], obj);
+            itemData.push(obj)
+            bglist[row][col].url = LineBg;
+            bglist[row][col].drag = false;
+            clearDrc(bglist[row][col])
+          }
+        }
+      }
+      closeMenu();
+    }
+    /*** 粘贴元素*/
+    const pasteItem = () => {
+      console.log(currentId)
+      itemData.splice(0, itemData.length);
+      for (let row = 0; row < bglist.length; row++) {
+        for (let col = 0; col < bglist[row].length; col++) {
+          if (bglist[row][col].id == currentId) {
+            let obj = createBasicQubit(-1, row, col, false, false, LineBg, false, null, -1, [], []);
+            copyData(bglist[row][col], obj);
+            itemData.push(obj)
+            bglist[row][col].url = LineBg;
+            bglist[row][col].drag = false;
+            clearDrc(bglist[row][col])
+          }
+        }
+      }
+      closeMenu();
+    }
+    /*** 参数param确定修改*/
+    const paramOK = (item) => {
+      isShowParam.value = false
+      item.param.value = param
+      changeParm(param);
+    }
+    /*** 参数param取消修改*/
+    const paramCancell = () => {
+      isShowParam.value = false
+    }
+
     onMounted(() => {
       initBglist();
       initQubitsArray();
@@ -652,6 +744,7 @@ export default {
       });
       initMaxMap();
     });
+
     return {
       clickStatus,
       orderStatic,
@@ -659,8 +752,6 @@ export default {
       dragOver,
       dragend,
       dragLeave,
-      clickRemove,
-      clickAdd,
       SetControlGate,
       judgClick,
       changeImgList,
@@ -675,13 +766,18 @@ export default {
       toastMessage,
       showMenu,
       deleteItem,
+      copyItem,
+      cutItem,
+      pasteItem,
       isShowMenu,
       menuLeft,
       menuTop,
       isShowParam,
       clickHeader,
       paramInfo,
-      param
+      param,
+      paramCancell,
+      paramOK
     };
   },
 };
