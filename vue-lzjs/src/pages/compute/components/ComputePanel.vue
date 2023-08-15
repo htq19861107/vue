@@ -32,8 +32,8 @@
             <div v-show="isShowParam" class="itemParam" :style="{ 'left': menuLeft + 'px', 'top': menuTop + 'px' }">
               <div>参数设置</div>
               <el-divider border-style="double" />
-              <el-input v-model="paramInfo" type="textarea" :rows="3"
-                placeholder="请输入一个数学表达式，可以包括PI，不包含括号，运算符包括'+-*/'(弧度制)" readonly="true" />
+              <el-input type="textarea" :rows="3" placeholder="请输入一个数学表达式，可以包括PI，不包含括号，运算符包括'+-*/'(弧度制)"
+                readonly="true" />
               <span class="paraItem" v-for="(data, index) in param" :key="index">
                 <div>表达式{{ index }}</div>
                 <el-input v-model="param[index]" type="text" @click.stop="">{{ param[index] }}</el-input>
@@ -83,11 +83,9 @@ export default {
     let endData = null;
     let clickStatus = 0;
     let orderStatic = 0;
-    let paramShow = false;
     let bgRef = ref([]);
     let doubleRef = ref([]); // dom二维数组
     let positionMaxMap = new Map();
-    let paramInfo = ref('')
     let param = reactive([])
     let currentId = -1
     let itemData = [];
@@ -283,7 +281,6 @@ export default {
 
       for (let nRow = Number(endRow) + Number(up); nRow <= Number(endRow) + Number(down); nRow++) {
         if (nRow >= Number(endRow) + Number(up) && nRow <= Number(endRow) + Number(down)) {
-
           bglist[nRow][col].id = idCount;
           if (nRow == endData.row) {
             bglist[nRow][col].url = startData.url;
@@ -390,6 +387,7 @@ export default {
       clickStatus = startData.control;
       orderStatic = clickStatus
     }
+    /***获取当前元素上下所占区域*/
     const getCurrentItemScope = (item) => {
       let up = 0;
       let down = 0;
@@ -406,6 +404,7 @@ export default {
       }
       return { 'up': up, 'down': down };
     }
+    /***获取当前元素往前移步数*/
     const getFrontItemStep = (item, codition) => {
       let nStep = 0;
       for (let col = item.col; col > 0; col--) {
@@ -422,6 +421,7 @@ export default {
       }
       return nStep;
     }
+    /***获取当前元素前是否为空白*/
     const isFrontItemBlank = (item, codition) => {
       let bResult = true;
       for (let row = item.row - codition.up; row <= Number(item.row) + Number(codition.down); row++) {
@@ -432,7 +432,7 @@ export default {
       }
       return bResult;
     }
-
+    /***元素前移*/
     const moveFrontItem = (item, codition, step) => {
       for (let row = item.row; row <= item.row + codition.down + codition.up; row++) {
 
@@ -442,7 +442,7 @@ export default {
         }
       }
     }
-
+    /***清除空白元素*/
     const clearBlank = () => {
       for (let col = 0; col < QubitsLineDepth; col++) {
         for (let row = 0; row < bglist.length; row++) {
@@ -761,7 +761,6 @@ export default {
       qubitsArray,
       imglist,
       bglist,
-      paramShow,
       show,
       toastMessage,
       showMenu,
@@ -774,7 +773,6 @@ export default {
       menuTop,
       isShowParam,
       clickHeader,
-      paramInfo,
       param,
       paramCancell,
       paramOK
@@ -853,7 +851,6 @@ export default {
           text-align: center;
           right: 0;
           bottom: 10px;
-
           margin-left: 0;
           margin-right: 0;
           width: auto;
@@ -869,7 +866,6 @@ export default {
           img {
             margin: 0 0px 0 0;
           }
-
         }
 
         .itemParam {
@@ -915,5 +911,4 @@ export default {
       }
     }
   }
-}
-</style>
+}</style>
